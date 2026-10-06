@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Atividades Adaptadas de História</title>
+<link rel="icon" type="image/png" href="imagem-criador-prompt.png">
+<style>
+:root{
+  --azul:#173a61;
+  --azul2:#285a8d;
+  --bg:#f2f5f9;
+  --card:#fff;
+  --line:#d9e1eb;
+  --muted:#667085;
+  --text:#20242a;
+  --green:#177a55;
+  --soft:#f8fafc;
+  --accent:#eaf2fb;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,var(--azul),var(--azul2));color:#fff;padding:22px 20px}
+header .inner{max-width:1500px;margin:auto}
+h1{margin:0 0 6px;font-size:24px}
+header p{margin:0;font-size:13px;opacity:.92;line-height:1.45}
+.tabs{max-width:1500px;margin:14px auto 0;padding:0 16px;display:flex;gap:8px}
+.tab{border:1px solid var(--line);background:#fff;color:var(--azul);padding:10px 18px;border-radius:9px;font-weight:800;cursor:pointer}
+.tab.active{background:var(--azul);color:#fff;border-color:var(--azul)}
+.layout{max-width:1500px;margin:14px auto 30px;padding:0 16px;display:grid;grid-template-columns:440px 1fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 15px rgba(26,52,84,.06)}
+.form{padding:16px;align-self:start}
+.preview{padding:18px}
+.group{padding:13px;border:1px solid var(--line);border-radius:10px;margin-bottom:12px}
+.group-title{font-size:13px;font-weight:800;color:var(--azul);margin-bottom:8px}
+label{display:block;font-size:12px;font-weight:700;margin:9px 0 5px}
+select,input,textarea{width:100%;border:1px solid #cbd4df;border-radius:8px;padding:9px;font-size:13px;background:#fff;color:var(--text)}
+textarea{resize:vertical;min-height:66px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.help{font-size:11px;color:var(--muted);line-height:1.42;margin-top:6px}
+.skill-list{display:grid;gap:7px;margin-top:7px}
+.skill{display:flex;gap:8px;align-items:flex-start;padding:8px;background:var(--soft);border:1px solid #e1e6ee;border-radius:8px;font-size:12px;line-height:1.35}
+.skill input,.toggle input,.format-item input{width:auto;margin-top:2px}
+.toggle{display:flex;gap:8px;align-items:flex-start;padding:8px 9px;background:var(--soft);border:1px solid #e1e6ee;border-radius:8px;margin-top:7px;font-size:12px;line-height:1.35}
+.toggle.disabled{opacity:.5}
+.mode-note{background:#eef5fc;border:1px solid #d4e3f3;color:#294b6c;padding:9px;border-radius:8px;font-size:11px;line-height:1.4;margin-top:8px}
+.formats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;max-height:300px;overflow:auto;padding-right:2px}
+.format-item{display:flex;gap:7px;align-items:flex-start;padding:7px;background:var(--soft);border:1px solid #e1e6ee;border-radius:8px;font-size:11px;line-height:1.25}
+.format-item.special{background:#fff8ea;border-color:#ead9ae}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{border:0;border-radius:8px;padding:10px 12px;font-weight:800;cursor:pointer}
+.primary{background:var(--azul);color:#fff}
+.copy{background:var(--green);color:#fff}
+.secondary{background:#e8edf4;color:var(--azul)}
+.danger{background:#f6dddd;color:#8d2525}
+.full{grid-column:1/-1}
+.preview h2,.history h2{margin:0;color:var(--azul);font-size:20px}
+.preview .sub,.history .sub{color:var(--muted);font-size:12px;margin:5px 0 12px}
+.summary{background:#f7f9fc;border:1px solid var(--line);border-radius:9px;padding:10px;font-size:12px;line-height:1.45;margin-bottom:10px}
+#promptOutput{min-height:720px;line-height:1.5;background:#fbfcfe}
+.history{max-width:1500px;margin:14px auto 30px;padding:18px}
+.history-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}
+.history-list{display:grid;gap:7px}
+.history-row{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fafbfd;border-radius:9px;padding:9px 10px}
+.history-title{flex:1;text-align:left;background:transparent;color:var(--azul);padding:3px 0}
+.history-copy{background:#e8edf4;color:var(--azul);padding:8px 10px}
+.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed #cbd4df;border-radius:10px}
+#toast{position:fixed;right:18px;bottom:18px;background:var(--azul);color:#fff;padding:10px 14px;border-radius:9px;display:none;z-index:100;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}}
+@media(max-width:600px){.grid2,.formats,.actions{grid-template-columns:1fr}.full{grid-column:auto}.history-top{flex-direction:column}}
+
+/* Identidade visual alinhada ao Criador de Plano de Aula */
+:root{--violeta:#7564df;--violeta-escuro:#5543ba;--coral:#ff704e;--amarelo:#ffcf36;--ink:#35455f;--azul:#7564df;--azul2:#8575ed;--bg:#f7f3ef;--line:#e9e5f4;--muted:#748097;--text:#35455f;--green:#7564df;--soft:#f9f8ff;--accent:#efecff}
+body{background:radial-gradient(ellipse at 2% 35%,#ffe6d9 0,transparent 40%),radial-gradient(ellipse at 98% 15%,#e7e3ff 0,transparent 35%),#f7f3ef;color:var(--ink);padding:28px 0}
+header{max-width:1500px;margin:0 auto 24px;padding:28px 44px 42px;border-radius:32px 32px 90px 32px;background:linear-gradient(120deg,#6957ce,#8575ed);box-shadow:0 18px 45px #6654bd20;color:#fff;position:relative;overflow:hidden}
+header:after{content:'';position:absolute;width:500px;height:360px;border-radius:45% 55% 30% 70%;background:#ffffff09;right:8%;top:-150px;transform:rotate(-25deg)}
+header .inner{position:relative;z-index:1} h1{font-size:clamp(28px,3vw,42px);letter-spacing:-1px;margin-bottom:10px} header p{font-size:14px;line-height:1.7;max-width:650px;color:#f0edff}
+.tabs{margin-top:0}.tab{border-radius:22px;border-color:#e2def0;color:var(--violeta-escuro)}.tab.active{background:var(--violeta);border-color:var(--violeta)}
+.layout{gap:24px}.card{border:1px solid #fff;border-radius:26px;box-shadow:0 12px 36px #50436a0d}.form,.preview{padding:24px}.group{border-color:#e9e5f4;border-radius:17px;background:#fff;padding:16px}.group-title{color:var(--violeta-escuro)}
+select,input,textarea{background:#fafaff;border-color:#e2def0;border-radius:11px;color:#35455f;line-height:1.5}select:focus,input:focus,textarea:focus{outline:2px solid #a89af0;outline-offset:2px;border-color:var(--violeta)}
+button{border-radius:22px}.primary,.copy{background:var(--violeta);color:white}.secondary,.history-copy{background:#efecff;color:var(--violeta-escuro)}
+.skill,.toggle,.format-item{background:#f9f8ff;border-color:#eae6f6;border-radius:12px}.mode-note{background:#fff3e5;border-color:#ffd6bd;color:#815236}.preview h2,.history h2,.history-title{color:var(--violeta-escuro)}
+#toast{background:var(--violeta)}
+.back-home{max-width:1500px;margin:0 auto 12px;padding:0 16px}.back-home a{display:inline-flex;gap:8px;align-items:center;text-decoration:none;color:var(--violeta-escuro);font-weight:800;font-size:13px}
+@media(max-width:600px){body{padding:12px 0}header{margin:0 12px 18px;padding:24px;border-radius:24px 24px 60px 24px}.back-home{padding:0 14px}}
+
+/* Interface inspirada na referência: violeta, coral e formas orgânicas. */
+    :root { --violeta:#7564df; --violeta-escuro:#5543ba; --coral:#ff704e; --amarelo:#ffcf36; --ink:#35455f; }
+    body { background: radial-gradient(ellipse at 2% 35%,#ffe6d9 0,transparent 40%), radial-gradient(ellipse at 98% 15%,#e7e3ff 0,transparent 35%), #f7f3ef; color:var(--ink); padding:28px; }
+    .site-hero { position:relative; overflow:hidden; max-width:1500px; margin:0 auto 28px; padding:28px 44px 48px; border-radius:32px 32px 90px 32px; background:linear-gradient(120deg,#6957ce,#8575ed); box-shadow:0 18px 45px #6654bd20; color:white; min-height:265px; }
+    .site-hero:after { content:''; position:absolute; width:500px; height:360px; border-radius:45% 55% 30% 70%; background:#ffffff09; right:8%; top:-150px; transform:rotate(-25deg); }
+    .brand { display:flex; align-items:center; gap:10px; font-size:22px; font-weight:800; position:relative; z-index:1; }
+    .brand-mark { background:white; color:var(--violeta); width:40px; height:40px; border-radius:14px; display:grid; place-items:center; }
+    .brand-small {display:block; font-size:8px; letter-spacing:2px; margin-top:3px;}
+    .hero-copy {position:relative;z-index:1;max-width:690px;margin-top:30px;}
+    .hero-eyebrow { font-size:10px; letter-spacing:2px; font-weight:800; color:var(--coral); }
+    .hero-copy .hero-eyebrow {color:#fff0a0;}
+    .hero-copy h2 {font-size:clamp(28px,3vw,42px);line-height:1.15;margin:10px 0 14px;letter-spacing:-1px;}
+    .hero-copy h2 span {color:#ffdf57;}
+    .hero-copy p {font-size:14px;line-height:1.7;max-width:590px;color:#f0edff;}
+    .hero-orbit {position:absolute;display:block;border-radius:50%;pointer-events:none;}
+    .orbit-one {width:170px;height:170px;right:7%;bottom:-35px;background:var(--coral);box-shadow:0 14px 30px #d63a4120;}
+    .orbit-two {width:60px;height:60px;right:20%;top:60px;background:var(--amarelo);}
+    .orbit-three {width:110px;height:110px;right:-35px;top:38px;background:#faf7f2;}
+    .container {grid-template-columns:410px minmax(0,1fr);gap:24px;align-items:start;}
+    .form-panel,.preview-panel {border:1px solid #fff; border-radius:26px;box-shadow:0 12px 36px #50436a0d;padding:24px;}
+    .form-panel {height:calc(100vh - 48px);top:24px;scrollbar-width:thin;scrollbar-color:#d6d0f5 transparent;}
+    h1 {color:var(--violeta-escuro);font-size:23px;letter-spacing:-.4px;}
+    .subtitle {color:#778094;font-size:13px;line-height:1.6;}
+    fieldset {border-color:#e9e5f4;border-radius:17px;padding:16px;margin-bottom:20px;background:#fff;}
+    legend {color:var(--violeta-escuro);font-size:13px;}
+    label {color:#4d5870;font-size:12px;margin-top:12px;}
+    input,select,textarea {background:#fafaff;border-color:#e2def0;border-radius:11px;color:#35455f;line-height:1.5;}
+    input:focus,select:focus,textarea:focus {outline:2px solid #a89af0;outline-offset:2px;border-color:var(--violeta);}
+    button {border-radius:22px;font-size:12px;line-height:1.4;transition:background .15s,box-shadow .15s;}
+    button:hover {box-shadow:0 5px 14px #6752b52a;}
+    button:focus-visible {outline:3px solid #b4a4fa;outline-offset:3px;}
+    .btn-primary {background:var(--violeta);color:white;}
+    .btn-primary:hover {background:var(--violeta-escuro);}
+    .btn-secondary {background:#efecff;color:var(--violeta-escuro);}
+    .btn-danger {background:#fff0ea;color:#bd4c32;}
+    .tabs {background:#f3f0fc;border-radius:26px;padding:5px;gap:4px;}
+    .tabs .btn-secondary {background:transparent;color:#766d90;}
+    #bimestralPainel {border-top:4px solid var(--coral);}
+    #bimestralPainel .buttons:first-of-type button:last-child {background:var(--coral);color:white;}
+    .check-item,.skill-box {background:#f9f8ff;border-color:#eae6f6;border-radius:12px;}
+    .hint {color:#748097;line-height:1.55;}
+    #statusBim:not(:empty) {padding:12px;border-radius:12px;background:#fff3e5;color:#815236;}
+    .preview-panel {background:#f1f5fc;overflow:hidden;}
+    .preview-top {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;}
+    .preview-top h2 {font-size:21px;color:#455778;margin-top:6px;}
+    .paper-tag {font-size:10px;background:#fff;border-radius:20px;padding:9px 12px;white-space:nowrap;color:#776aa4;}
+    .page {max-width:100%;box-shadow:0 5px 24px #33476612;color:#222;overflow-wrap:anywhere;}
+    .line-fill {min-width:0 !important;max-width:100%;}
+    .placeholder {display:inline-block;max-width:100%;overflow:hidden;vertical-align:bottom;}
+    @media(max-width:1150px) {.container{grid-template-columns:1fr}.form-panel{position:relative;top:0;height:auto}.page{width:100%;min-height:auto}.hero-copy{max-width:75%}}
+    @media(max-width:600px) {body{padding:12px}.site-hero{padding:24px;border-radius:24px 24px 60px 24px}.hero-copy{max-width:100%}.hero-copy p{max-width:85%}.orbit-one{width:85px;height:85px;right:-35px}.orbit-two{width:24px;height:24px;right:24px;top:28px}.orbit-three{display:none}.form-panel,.preview-panel{padding:16px;border-radius:20px}.preview-top{align-items:start}.paper-tag{display:none}.page{padding:20px}.row{grid-template-columns:1fr}}
+    @media print {@page{size:A4;margin:16mm}body{padding:0;background:#fff}.site-hero,.no-print{display:none!important}.container{display:block}.preview-panel{padding:0;background:#fff;border:0;box-shadow:none;overflow:visible}.page{padding:0;width:auto;max-width:none;min-height:0;box-shadow:none;margin:0;page-break-after:auto}.section{break-inside:auto}.section-title{break-after:avoid}.aula-box{break-inside:auto}h2{break-after:avoid}}
+
+  
+.back-home{max-width:1500px;margin:0 auto 12px}.back-home a{display:inline-flex;gap:8px;align-items:center;text-decoration:none;color:var(--violeta-escuro);font-weight:800;font-size:13px}
+
+body{padding:28px}.layout{grid-template-columns:410px minmax(0,1fr);padding:0;align-items:start}.tabs{padding:5px;margin:0 auto 16px;max-width:1500px;display:flex}.tab{flex:1;font-size:12px;line-height:1.4}.back-home{padding:0}.card{border:1px solid #fff;border-radius:26px;box-shadow:0 12px 36px #50436a0d}.form,.preview{padding:24px}.form{height:calc(100vh - 48px);overflow-y:auto;position:sticky;top:24px;scrollbar-width:thin;scrollbar-color:#d6d0f5 transparent}.preview{background:#f1f5fc;min-width:0}.group{padding:16px;margin-bottom:20px;border-color:#e9e5f4;border-radius:17px;background:#fff}.group-title{color:var(--violeta-escuro);font-size:13px}.grid2{gap:10px}.help{font-size:12px;line-height:1.55}.summary{background:#f9f8ff;border-color:#eae6f6;border-radius:12px}#promptOutput{background:#fff;border-color:#e2def0;font-size:14px;box-shadow:0 5px 24px #33476612}.actions{gap:10px;margin-top:16px}button{padding:11px}.brand-mark img{width:32px;height:22px;object-fit:contain;display:block}.site-hero .hero-copy h1{font-size:clamp(28px,3vw,42px);line-height:1.15;margin:10px 0 14px;letter-spacing:-1px;color:#fff}.hero-copy h1 span{color:#ffdf57}.history{padding:24px}.danger{background:#fff0ea;color:#bd4c32}
+@media(max-width:1150px){.layout{grid-template-columns:1fr}.form{position:relative;top:0;height:auto}}
+@media(max-width:600px){body{padding:12px}header.site-hero{margin:0 auto 28px;padding:24px}.back-home{padding:0}.form,.preview{padding:16px;border-radius:20px}.grid2,.formats,.actions{grid-template-columns:1fr}.hero-copy p{max-width:100%}.brand{font-size:20px}}
+
+
+.site-footer{max-width:1500px;margin:28px auto 0;padding:20px 12px;text-align:center;color:var(--violeta-escuro,#5543ba);font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:600;border-top:1px solid #e2def0;line-height:1.6}
+@media print{.site-footer{display:none!important}}
+</style>
+</head>
+<body>
+<div class="back-home"><a href="index.html">← Voltar para a página inicial</a></div>
+<header class="site-hero">
+    <div class="brand"><span class="brand-mark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAGQCAMAAABh+/QGAAADAFBMVEVHcEyOm5ybl5mEnJ7UgYU0pcPfkW0srb3BaKfsn1MZrdHwqEXBZ6h5v3XpcYsarszmtz9rfMa9ZKrwencMstjxszt8wHMjtqfjaJ70lU/vdn+lZa5eg8sHtdAym9rnwDrVZaWtw1f3qjzlaJ8HtdLxhmDvc4Unt6SdZbCAcb3wvzXwfHEtntu1Y6tMjtLQZaYFtdpuesXnaJ/3qTzxhmDvcol0eMOZZrH3pD72nUXxhWGunXwDttsqoNzoxjfsxDbvwjX1vzTywDT4vTPkxjn5vDPgxjvdxj35uTTZxj/5tzXVxkHRxkT4tDbNxkb4sTjIxkjDxkz4rjn4qzu5xVH3qDyyxVX3pT33oz+rxFn3okD2oEL2n0Slw1z2nUaew2D1m0j/mDnymkyYwmOSwmeMwmqHwW3/iknzjVnell+BwXDvjVvzi1ryi1vyilzyiF56wHTyhmDNlmu6nnHxhGNzwHjxgWfxgGttv3vxfm7xfHJnv3/we3W8lHvweXnweHzwd37wdYNgvoPwdYChnIbwc4bvcorvcY1avYbvb5CTnZDubZVUvYrsa5mFnpnraZ3qaKJMvI7oaKJ3oKLlZ6NEvJPiZ6PfZ6TeZ6PcZ6U6u5lhorDaZqXYZqU2uprVZqYzupzRZqfPZqcvuZ/NZqcruaHLZajKZahCpcMnuKPHZajFZanDZakjt6bBZaq+Zaoftqi8Zaobtqu6ZasGtd4Ett4Ct94Dt9sCt90Js94Dt9m3ZKsEt9UFt9IXta0Gt88Msd4Kst4Yq90Srt0Qr90OsN0fp90bqd21ZKwipd0UrN0lo90GtssHtsgwndwItsQsn9woodyyZKwJtsEOtbgzm9wStLELtb4Mtbs5mNkPtLU+ldiuZK1EktVBk9ZMjtJHkNSsZK0LquiqZK5Qi9BUic8ArfFYh81chcyoZK6mZa5fg8ukZa9jgclnf8hrfcahZa90eMNvesWfZbB5dcGbZrGdZbB+cr6Fb7uHbrqMbLeCcLyJbbmQarWYZrGTaLMf3uOkAAAAmXRSTlMAAQMMFyAlNzs8UlZXYmpxc3yFiI+QlJifraytrLG0ubu9yszMzs7O0dHZ2Njc3eHh4+Tm6uz3+fv7+/v6+v////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7ZMAXoAAB1KklEQVR42uyWwa6iMBSGKV5BiYFFWRgTdoS1mYQdL0dMIWTeiJTwAhoWLuZ15q9tadWZiSuvE/qd09PE5C7uOX49eh8JIcQ3EPD4ief4v7BHSCz0J26kLyH75b2Cf8O19bMhPnl9TG6i/2gjue+NH2x2cUzp/gCK4lCIe08pjePtJljZf+u6+pGQx6duFYZRlKRpmknyW03TJImicO3by8YN1OKuG6tgF++LouxaQdfhoAhQm0achjWMNSWkofHWqOI0+RiIbcY6hBRZfhwVZwnui4gJcblME/KaZ2kSrfVEnSWA6E4GnreBGWWnaW+UOHACiSMoGQqTyLssDvEusEfj+DbsAaxCiHEcAEeM4zACiKG4wA6JkAMVhiDArzxNQukGWfQ4fV9eG1p0XQknlBpIaQgOaETMMJVKEFCzGpQHuvtyT883QuZvsx8mWV5xxQBGLQg4IxVwxJJEK3IF0CRL1kuWRP3XNzm6n91Mqx0xNI1ISxAjB6uRIgA7neqC6mXifnC9C/MmKTeOPeCgqgahRzUOwBLkjLxbIpMMuCElEZeo1ywJPcHShint+IoL5UZr3MClUuvRPm8QhhSnlgsEZeZUw5KtenOW+fa8F9PltXQDQA1ecT4gRBnMEjn/eYNMSIO0RN9qk5DFOCL7GdAfyg3kA+3fNgiTaZByiEQYGCSJt4t8e96J+dr6UZpVfV/xvgKc91wxCzI+bJDxWZAnR9Quuf5mxwx20waCMCxMgBRVcAiHCIlTrV5yiSLlxrtBNWqsyOJ5Iln0DSrl4IOtPk1n9nc7C2MvbUWRWPh3d+Qriz5/M35/nI0uhZFeImV4LyMHLw2ePWSUjxaDYO8ZhFDoGZCISoZXkfx/dYxmKQPB3nBsuKcGEDWI9lhBg8AbFhM+i/EF/JVJ4tzBdNioTJQPH5BMAXFwqEFwtMki+qKZf0wu4GJNTkVHf8zmEHeAjW3TYvEKGsR+yMIU0prSrfgZcfJIeO7I8x1n2GfsjPdLq0EUETWIDaHy5D65ifpiTU5Fx2CaOhq+LT02FA/EGkSWb5D3gEE0Zcm7WrheK8Z/0l3p7fw1dwvJVBtasw6D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" alt="Símbolo da neurodivergência"></span><span>História<span class="brand-small">ATIVIDADES ADAPTADAS</span></span></div>
+    <div class="hero-copy"><span class="hero-eyebrow">DO 6º AO 9º ANO</span><h1>Gerador de Atividades<br><span>Adaptadas de História</span></h1><p>Crie prompts para folhas A4 verticais, visuais e realmente adaptadas, usando as habilidades do plano anual.</p></div>
+    <span class="hero-orbit orbit-one" aria-hidden="true"></span><span class="hero-orbit orbit-two" aria-hidden="true"></span><span class="hero-orbit orbit-three" aria-hidden="true"></span>
+</header>
+
+<div class="tabs">
+  <button class="tab active" id="tabGerador">GERADOR</button>
+  <button class="tab" id="tabHistorico">HISTÓRICO</button>
+</div>
+
+<section id="viewGerador">
+  <div class="layout">
+    <aside class="card form">
+      <div class="group">
+        <div class="group-title">1. PLANO ANUAL</div>
+        <div class="grid2">
+          <div>
+            <label>ANO/SÉRIE</label>
+            <select id="serie"><option value="">SELECIONE</option></select>
+          </div>
+          <div>
+            <label>BIMESTRE</label>
+            <select id="bimestre"><option value="">SELECIONE A SÉRIE</option></select>
+          </div>
+        </div>
+
+        <label>UNIDADE TEMÁTICA</label>
+        <select id="unidade"><option value="">SELECIONE O BIMESTRE</option></select>
+
+        <label>OBJETO DE CONHECIMENTO</label>
+        <select id="objeto"><option value="">SELECIONE A UNIDADE</option></select>
+
+        <label>HABILIDADE(S) DE HISTÓRIA</label>
+        <div id="habilidades" class="skill-list"><div class="help">SELECIONE O OBJETO DE CONHECIMENTO.</div></div>
+
+        <label>TÍTULO DA ATIVIDADE <span style="font-weight:400">(OPCIONAL)</span></label>
+        <input id="titulo" placeholder="SE VAZIO, USE O OBJETO DE CONHECIMENTO">
+      </div>
+
+      <div class="group">
+        <div class="group-title">2. ESTRUTURA DA FOLHA</div>
+
+        <label>MODELO DE PÁGINA</label>
+        <select id="estrutura">
+          <option value="folha" selected>FOLHA COM 4 ATIVIDADES CURTAS</option>
+          <option value="unica">ATIVIDADE ÚNICA AMPLIADA / PÁGINA LÚDICA</option>
+        </select>
+
+        <div id="qtdWrap">
+          <label>QUANTIDADE DE ATIVIDADES</label>
+          <input id="qtd" type="number" min="2" max="8" value="4">
+        </div>
+
+        <label>NÍVEL DE APOIO</label>
+        <select id="apoio">
+          <option value="baixo">BAIXO</option>
+          <option value="médio" selected>MÉDIO</option>
+          <option value="alto">ALTO</option>
+        </select>
+
+        <label>COMO ESCOLHER O TIPO</label>
+        <select id="modo">
+          <option value="aleatorio" selected>IA ESCOLHE ALEATORIAMENTE</option>
+          <option value="manual">EU ESCOLHO MANUALMENTE</option>
+        </select>
+
+        <div id="modoNota" class="mode-note"></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">3. ADAPTAÇÃO E DESIGN</div>
+
+        <label class="toggle"><input id="padraoApostila" type="checkbox" checked><span>USAR PADRÃO VISUAL SEMELHANTE À APOSTILA ADAPTADA</span></label>
+        <label class="toggle"><input id="textoApoio" type="checkbox" checked><span>INCLUIR TEXTO EXPLICATIVO BEM CURTO</span></label>
+        <label class="toggle"><input id="textosCurtos" type="checkbox" checked><span>MANTER TODOS OS TEXTOS E COMANDOS BEM CURTOS</span></label>
+        <label class="toggle"><input id="usarImagens" type="checkbox" checked><span>INCLUIR ILUSTRAÇÕES / IMAGENS DE APOIO</span></label>
+        <label class="toggle"><input id="decoracao" type="checkbox" checked><span>USAR DECORAÇÃO SUTIL E SINALIZAÇÃO VISUAL</span></label>
+        <label class="toggle" id="dicaCorLabel"><input id="dicaCor" type="checkbox" checked><span>USAR DICA DE COR ENTRE TEXTO E RESPOSTA ESCRITA</span></label>
+        <label class="toggle"><input id="cabecalho" type="checkbox"><span>INCLUIR CAMPOS NOME / SÉRIE / DATA</span></label>
+        <label class="toggle"><input id="gabarito" type="checkbox"><span>INCLUIR GABARITO EM TEXTO, FORA DA IMAGEM</span></label>
+
+        <p class="help">O PADRÃO APOSTILA orienta a IA a criar uma folha com visual muito semelhante ao material adaptado da apostila: limpa, visual, sinalizada e com pouco texto. A DICA DE COR É DESATIVADA AUTOMATICAMENTE SE NÃO HOUVER TEXTO EXPLICATIVO.</p>
+
+        <label>OBSERVAÇÃO DO PROFESSOR <span style="font-weight:400">(OPCIONAL)</span></label>
+        <textarea id="obs" placeholder="EX.: EVITAR MUITA ESCRITA; USAR BANCO DE PALAVRAS; PRIORIZAR IMAGENS..."></textarea>
+      </div>
+
+      <div class="group" id="grupoFormatos" style="display:none">
+        <div class="group-title">4. TIPO(S) DE ATIVIDADE</div>
+        <p id="formatHelp" class="help"></p>
+        <div class="formats" id="formatos"></div>
+      </div>
+
+      <div class="actions">
+        <button class="primary full" id="btnGerar">GERAR PROMPT</button>
+        <button class="copy" id="btnCopiar">COPIAR</button>
+        <button class="secondary" id="btnLimpar">LIMPAR OPÇÕES</button>
+      </div>
+    </aside>
+
+    <main class="card preview">
+      <h2>Prompt gerado</h2>
+      <p class="sub">O prompt só recebe as opções que estão ativas.</p>
+      <div id="resumo" class="summary">SELECIONE OS DADOS DO PLANO ANUAL.</div>
+      <textarea id="promptOutput" readonly placeholder="O PROMPT APARECERÁ AQUI..."></textarea>
+    </main>
+  </div>
+</section>
+
+<section id="viewHistorico" class="card history" style="display:none">
+  <div class="history-top">
+    <div>
+      <h2>Histórico de prompts</h2>
+      <p class="sub">Somente os títulos aparecem. Clique no título ou em COPIAR para reutilizar.</p>
+    </div>
+    <button class="danger" id="btnLimparHistorico">LIMPAR HISTÓRICO</button>
+  </div>
+  <div id="historicoLista" class="history-list"></div>
+</section>
+
+<div id="toast"></div>
+
+<script>
+const registrosPlano = [{"serie":"6º ano","bimestre":"1º bimestre","unidade":"Construindo conceitos em História.","objeto":"O que é história?; Processos históricos; Noções de tempo e espaço históricos; Cartografia Social; Povos Indígenas na região de Marabá.","habilidades":[{"codigo":"EF06HI01","texto":"Identificar diferentes formas de compreensão da noção de tempo e de periodização dos processos históricos (continuidades e rupturas)."}]},{"serie":"6º ano","bimestre":"1º bimestre","unidade":"Construindo conceitos em História.","objeto":"Grupos sociais existentes na região, localidade, assentamento e território.","habilidades":[{"codigo":"EF06HI02MB","texto":"Identificar os grupos sociais existente na sua região ou (localidade) assentamento e o território;"}]},{"serie":"6º ano","bimestre":"1º bimestre","unidade":"Construindo conceitos em História.","objeto":"História oral da comunidade como fonte histórica.","habilidades":[{"codigo":"EF06HI03MB","texto":"Reconhecer a história oral da comunidade como fonte histórica para a construção de uma história local;"}]},{"serie":"6º ano","bimestre":"1º bimestre","unidade":"Construindo conceitos em História.","objeto":"História de vida: passado e presente.","habilidades":[{"codigo":"EF06HI04MB","texto":"Descrever sua própria História de vida (passado e presente)."}]},{"serie":"6º ano","bimestre":"1º bimestre","unidade":"Construindo conceitos em História.","objeto":"Periodização histórica. O trabalho do historiador: os sujeitos históricos e o valor das fontes históricos.","habilidades":[{"codigo":"EF06HI02","texto":"Identificar a gênese da produção do saber histórico e analisar o significado das fontes que originaram determinadas formas de registro em sociedades e épocas distintas."}]},{"serie":"6º ano","bimestre":"1º bimestre","unidade":"Construindo conceitos em História.","objeto":"Conhecendo as histórias de Marabá.","habilidades":[{"codigo":"EF06HI01MB","texto":"Conhecer as diferentes narrativas históricas relacionadas à fundação da cidade de Marabá."}]},{"serie":"6º ano","bimestre":"1º bimestre","unidade":"Construindo conceitos em História.","objeto":"Povos indígenas de Marabá e suas narrativas históricas.","habilidades":[{"codigo":"EF06HI05MB","texto":"Compreender a história do sudeste do Pará na versão dos povos indígenas da região, as suas noções de tempo, periodização e formas de registro."}]},{"serie":"6º ano","bimestre":"2º bimestre","unidade":"A origem da humanidade, deslocamentos e concepções.","objeto":"Diferentes teorias sobre o surgimento do mundo e da humanidade: evolucionismo, criacionismos, outras narrativas como: Sopro de Tupã, Guarani, Criação do mundo segundo a tradição Yorubá.","habilidades":[{"codigo":"EF06HI03","texto":"Identificar as hipóteses científicas sobre o surgimento da espécie humana e sua historicidade e analisar os significados dos mitos de fundação."}]},{"serie":"6º ano","bimestre":"2º bimestre","unidade":"A origem da humanidade, deslocamentos e concepções.","objeto":"África, a matriz da vida.","habilidades":[{"codigo":"EF06HI0305MB","texto":"Identificar o continente africano como berço da humanidade."}]},{"serie":"6º ano","bimestre":"2º bimestre","unidade":"A origem da humanidade, deslocamentos e concepções.","objeto":"As teorias sobre a origem do homem americano e o povoamento da América.","habilidades":[{"codigo":"EF06HI04","texto":"Conhecer as teorias sobre a origem do homem americano."}]},{"serie":"6º ano","bimestre":"2º bimestre","unidade":"A origem da humanidade, deslocamentos e concepções.","objeto":"Rotas de povoamento no território americano.","habilidades":[{"codigo":"EF06HI06","texto":"Identificar geograficamente as rotas de povoamento no território americano."}]},{"serie":"6º ano","bimestre":"2º bimestre","unidade":"A origem da humanidade, deslocamentos e concepções.","objeto":"Comunidades indígenas e africanas e a relação entre cultura e natureza.","habilidades":[{"codigo":"EF06HI05","texto":"Descrever modificações da natureza e da paisagem realizadas por diferentes tipos de sociedade, com destaque para os povos indígenas originários e povos africanos, e discutir a natureza e a lógica das transformações ocorridas."}]},{"serie":"6º ano","bimestre":"2º bimestre","unidade":"A origem da humanidade, deslocamentos e concepções.","objeto":"Modos de vida das comunidades indígenas e vazanteiras no sudeste do Pará.","habilidades":[{"codigo":"EF06HI03MB","texto":"Identificar e conhecer os povos indígenas e comunidades vazanteiras da região sudeste do Pará, suas expressões culturais, formas de registro e as distintas relações mantidas com a natureza."}]},{"serie":"6º ano","bimestre":"3º bimestre","unidade":"Civilizações antigas e suas formas de registro.","objeto":"Civilizações da África Antiga e a tradição oral; Civilizações Mesopotâmica, Hebraica, Fenícia e Persa.","habilidades":[{"codigo":"EF06HI07","texto":"Identificar aspectos e formas de registro das sociedades antigas na África, no Oriente Médio e nas Américas, distinguindo alguns significados presentes na cultura material e na tradição oral dessas sociedades."}]},{"serie":"6º ano","bimestre":"3º bimestre","unidade":"Civilizações antigas e suas formas de registro.","objeto":"As civilizações da América Pré-Colombianas e índios do Brasil: relações de territorialidades.","habilidades":[{"codigo":"EF06HI08","texto":"Identificar os espaços territoriais ocupados e os aportes culturais, científicos, sociais e econômicos dos astecas, maias e incas e dos povos indígenas de diversas regiões brasileiras."}]},{"serie":"6º ano","bimestre":"3º bimestre","unidade":"Civilizações antigas e suas formas de registro.","objeto":"Comunidades indígenas e vazanteiras e da floresta no sudeste do Pará.","habilidades":[{"codigo":"EF06HI04MB","texto":"Identificar os espaços territoriais ocupados, as formas de registro, os saberes e as técnicas de sobrevivência das comunidades indígenas e vazanteiras no sudeste do Pará."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"Cultura, cidadania, organização política e território na Grécia e Roma Antigas.","habilidades":[{"codigo":"EF06HI09","texto":"Discutir o conceito de Antiguidade Clássica, seu alcance e limite na tradição ocidental, assim como os impactos sobre outras sociedades e culturas."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"A formação política, social e territorial da Grécia Antiga: a formação da Pólis.","habilidades":[{"codigo":"EF06HI10","texto":"Explicar a formação da Grécia Antiga, com ênfase na formação da Pólis e nas transformações políticas, sociais e culturais."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"A formação política, social e territorial da Roma Antiga: Monarquia e República.","habilidades":[{"codigo":"EF06HI11","texto":"Caracterizar o processo de formação da Roma Antiga e suas configurações sociais e políticas nos períodos monárquico e republicano."},{"codigo":"EF06HI12","texto":"Associar o conceito de cidadania à dinâmica de inclusão e exclusão na Grécia e Roma antigas."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"O conceito de cidadania na Grécia e na Roma Antigas.","habilidades":[{"codigo":"EF06HI13","texto":"Conceituar império no mundo antigo, com vistas à análise das diferentes formas de equilíbrio e desequilíbrio entre as partes envolvidas."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"Política e cidadania na vida cotidiana local.","habilidades":[{"codigo":"EF06HI05MB","texto":"Comparar as dinâmicas políticas e sociais local e regional às formações sociais e políticas gregas e romanas clássicas."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"Contatos entre povos e culturas em diferentes espaços e tempos.","habilidades":[{"codigo":"EF06HI14","texto":"Identificar e analisar diferentes formas de contato, adaptação ou exclusão entre populações em diferentes tempos e espaços."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"O Mediterrâneo: possibilidades de interconexão, formação, trocas culturais e sociabilidades.","habilidades":[{"codigo":"EF06HI15","texto":"Descrever as dinâmicas de circulação de pessoas, produtos e culturas no Mediterrâneo e seu significado."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"A bacia Araguaia-Tocantins e o desenvolvimento do sudeste do Pará.","habilidades":[{"codigo":"EF06HI06MB","texto":"Compreender a importância dos rios Tocantins e Araguaia na dinâmica de sociabilidade e produção cultural no sudeste do Pará."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"A colonização da região sudeste do Pará e a construção dos grupos nativos.","habilidades":[{"codigo":"EF06HI07MB","texto":"Compreender a dinâmica de reocupação do sudeste do Pará, a construção dos grupos nativos no decorrer do processo de colonização da região e os olhares estereotipados sobre esses grupos atualmente."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"Formas de escravidão, servidão e trabalho livre em diferentes tempos e espaços históricos.","habilidades":[{"codigo":"EF06HI16","texto":"Caracterizar e comparar as dinâmicas de abastecimento e as formas de organização do trabalho e da vida social em diferentes sociedades e períodos, com destaque para as relações entre senhores e servos."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"Escravidão, servidão e trabalho livre.","habilidades":[{"codigo":"EF06HI17","texto":"Diferenciar escravidão, servidão e trabalho livre no mundo antigo."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"A influência política e social da igreja católica na Europa Medieval.","habilidades":[{"codigo":"EF06HI18","texto":"Analisar o papel da religião cristã na cultura e nos modos de organização social no período medieval."}]},{"serie":"6º ano","bimestre":"4º bimestre","unidade":"Trabalho, organização social e política em diferentes tempos e espaços.","objeto":"O papel da mulher no mundo antigo, medieval e em outros tempos.","habilidades":[{"codigo":"EF06HI19","texto":"descrever e analisar os diferentes papéis sociais das mulheres no mundo antigo e nas sociedades medievais."}]},{"serie":"7º ano","bimestre":"1º bimestre","unidade":"Sociedades africanas, americanas e europeias no contexto das navegações.","objeto":"A construção da ideia de “modernidade”.","habilidades":[{"codigo":"EF07HI01","texto":"Explicar o significado de “modernidade” e suas lógicas de inclusão e exclusão, com base em uma concepção europeia."}]},{"serie":"7º ano","bimestre":"1º bimestre","unidade":"Sociedades africanas, americanas e europeias no contexto das navegações.","objeto":"A dinâmica das navegações entre os séculos XIV e XVI: contatos, interações e trocas de costumes.","habilidades":[{"codigo":"EF07HI02","texto":"Identificar conexões e interações entre as sociedades do Novo Mundo, da Europa, da África e da Ásia no contexto das navegações e indicar a complexidade e as interações que ocorrem nos Oceanos Atlântico, Índico e Pacífico."}]},{"serie":"7º ano","bimestre":"1º bimestre","unidade":"Sociedades africanas, americanas e europeias no contexto das navegações.","objeto":"Povos africanos e indígenas do Brasil pré-colonial.","habilidades":[{"codigo":"EF07HI03","texto":"Identificar aspectos e processos específicos das sociedades africanas e americanas antes da chegada dos europeus, com destaque para as formas de organização social e o desenvolvimento de saberes e técnicas."}]},{"serie":"7º ano","bimestre":"1º bimestre","unidade":"Sociedades africanas, americanas e europeias no contexto das navegações.","objeto":"Modos de vida tradicionais e concepções de desenvolvimento.","habilidades":[{"codigo":"EF07HI01MB","texto":"Identificar e comparar modos de vida de comunidades camponesas, indígenas e povos da floresta no sudeste do Pará como contraposição à ideia de progresso."}]},{"serie":"7º ano","bimestre":"1º bimestre","unidade":"Sociedades africanas, americanas e europeias no contexto das navegações.","objeto":"Identidade do homem do campo e saberes.","habilidades":[{"codigo":"EF07HI02MB","texto":"Identificar as produções artísticas no campo de Marabá;"}]},{"serie":"7º ano","bimestre":"1º bimestre","unidade":"Sociedades africanas, americanas e europeias no contexto das navegações.","objeto":"A arte e cultura camponesa.","habilidades":[{"codigo":"EF07HI03MB","texto":"Compreender o significado da inclusão e da exclusão social e cultural no meio rural;"},{"codigo":"EF07HI04MB","texto":"Identificar as conexões de conhecimento atuais para compreender o surgimento de vilas;"},{"codigo":"EF07HI05MB","texto":"Identificar os aspectos culturais como forma de organização social e saberes da terra;"},{"codigo":"EF07HI06MB","texto":"Identificar na sociedade campesina, traços das diversas culturas a partir da colonização."}]},{"serie":"7º ano","bimestre":"2º bimestre","unidade":"Humanismos, Reformas e Estados Nacionais.","objeto":"Humanismos e Renascimentos.","habilidades":[{"codigo":"EF07HI04","texto":"Identificar as principais características dos Humanismos e dos Renascimentos e analisar seus significados."}]},{"serie":"7º ano","bimestre":"2º bimestre","unidade":"Humanismos, Reformas e Estados Nacionais.","objeto":"Reformas religiosas e as influências comportamentais na Europa e na América.","habilidades":[{"codigo":"EF07HI05","texto":"Identificar e relacionar as vinculações entre as Reformas Religiosas e os processos culturais e sociais do período moderno na Europa e na América."}]},{"serie":"7º ano","bimestre":"2º bimestre","unidade":"Humanismos, Reformas e Estados Nacionais.","objeto":"Os efeitos das Reformas Religiosas no Brasil atual.","habilidades":[{"codigo":"EF07HI02MB","texto":"Compreender os efeitos das Reformas Religiosas no comportamento político e econômico dos brasileiros na atualidade."}]},{"serie":"7º ano","bimestre":"2º bimestre","unidade":"Humanismos, Reformas e Estados Nacionais.","objeto":"A formação dos Estados Nacionais.","habilidades":[{"codigo":"EF07HI07","texto":"Descrever os processos de formação e consolidação das monarquias e suas principais características com vistas à compreensão das razões da centralização política."}]},{"serie":"7º ano","bimestre":"3º bimestre","unidade":"A formação dos Estados nacionais e a dinâmica do mundo colonial.","objeto":"O investimento europeu nas Grandes Navegações.","habilidades":[{"codigo":"EF07HI06","texto":"Comparar as navegações no Atlântico e no Pacífico entre os séculos XIV e XVI."}]},{"serie":"7º ano","bimestre":"3º bimestre","unidade":"A formação dos Estados nacionais e a dinâmica do mundo colonial.","objeto":"As formas de organização política e social dos povos americanos.","habilidades":[{"codigo":"EF07HI08","texto":"Descrever as formas de organização das sociedades americanas no tempo da conquista com vistas à compreensão dos mecanismos de alianças, confrontos e resistências."}]},{"serie":"7º ano","bimestre":"3º bimestre","unidade":"A formação dos Estados nacionais e a dinâmica do mundo colonial.","objeto":"Os impactos da conquista europeia para as populações americanas.","habilidades":[{"codigo":"EF07HI09","texto":"Analisar os diferentes impactos da conquista europeia da América para as populações ameríndias e identificar as formas de resistência."}]},{"serie":"7º ano","bimestre":"3º bimestre","unidade":"A formação dos Estados nacionais e a dinâmica do mundo colonial.","objeto":"As dinâmicas das sociedades americanas no período colonial.","habilidades":[{"codigo":"EF07HI10","texto":"Analisar, com base em documentos históricos, diferentes interpretações sobre as dinâmicas das sociedades americanas no período colonial."}]},{"serie":"7º ano","bimestre":"3º bimestre","unidade":"A formação dos Estados nacionais e a dinâmica do mundo colonial.","objeto":"A formação histórico-geográfica da América portuguesa.","habilidades":[{"codigo":"EF07HI11","texto":"Analisar a formação histórico-geográfica do território da América portuguesa por meio de mapas históricos."}]},{"serie":"7º ano","bimestre":"3º bimestre","unidade":"A formação dos Estados nacionais e a dinâmica do mundo colonial.","objeto":"A distribuição histórico-territorial da população brasileira.","habilidades":[{"codigo":"EF07HI12","texto":"Identificar a distribuição territorial da população brasileira em diferentes épocas, considerando a diversidade étnico-racial e étnico-cultural (indígena, africana, europeia e asiática)."}]},{"serie":"7º ano","bimestre":"4º bimestre","unidade":"Lógicas Comerciais e Mercantis da modernidade.","objeto":"Dinâmicas comerciais das sociedades americanas e africanas.","habilidades":[{"codigo":"EF07HI14","texto":"Descrever as dinâmicas comerciais das sociedades americanas e africanas e analisar suas interações com outras sociedades do Ocidente e do Oriente."}]},{"serie":"7º ano","bimestre":"4º bimestre","unidade":"Lógicas Comerciais e Mercantis da modernidade.","objeto":"A dinâmica comercial europeia: o mercantilismo.","habilidades":[{"codigo":"EF07HI13","texto":"Caracterizar a ação dos europeus e suas lógicas mercantis visando ao domínio no mundo atlântico."}]},{"serie":"7º ano","bimestre":"4º bimestre","unidade":"Lógicas Comerciais e Mercantis da modernidade.","objeto":"A escravidão moderna, o escravismo no Brasil colônia e no mundo antigo, o mundo antigo e a servidão medieval; O comércio de escravos africanos.","habilidades":[{"codigo":"EF07HI15","texto":"Discutir o conceito de escravidão moderna e suas distinções em relação ao escravismo antigo e à servidão medieval."},{"codigo":"EF07HI16","texto":"Analisar os mecanismos e as dinâmicas de comércio de escravizados em suas diferentes fases, identificando os agentes responsáveis pelo tráfico e as regiões e zonas africanas de procedência dos escravizados."}]},{"serie":"7º ano","bimestre":"4º bimestre","unidade":"Lógicas Comerciais e Mercantis da modernidade.","objeto":"Do mercantilismo ao capitalismo.","habilidades":[{"codigo":"EF07HI17","texto":"Discutir as razões da passagem do mercantilismo para o capitalismo."}]},{"serie":"8º ano","bimestre":"1º bimestre","unidade":"O antigo regime em crise.","objeto":"O pensamento iluminista e o liberalismo econômico.","habilidades":[{"codigo":"EF08HI01","texto":"Identificar os principais aspectos conceituais do Iluminismo e do Liberalismo e discutir a relação entre eles e a organização do mundo contemporâneo."}]},{"serie":"8º ano","bimestre":"1º bimestre","unidade":"O antigo regime em crise.","objeto":"As revoluções inglesas do século XVII.","habilidades":[{"codigo":"EF08HI02","texto":"Identificar as particularidades político-sociais da Inglaterra do século XVII e analisar os desdobramentos posteriores à Revolução Gloriosa."}]},{"serie":"8º ano","bimestre":"1º bimestre","unidade":"O antigo regime em crise.","objeto":"A Revolução Industrial.","habilidades":[{"codigo":"EF08HI03","texto":"Analisar os impactos da Revolução Industrial na produção e circulação de povos, produtos e culturas."}]},{"serie":"8º ano","bimestre":"1º bimestre","unidade":"O antigo regime em crise.","objeto":"O desenvolvimento industrial de Marabá, suas causas e consequências.","habilidades":[{"codigo":"EF08HI01MB","texto":"Analisar os impactos do crescimento industrial em Marabá, na produção e na circulação de povos, produtos e culturas."},{"codigo":"EF08HI01MB","texto":"Analisar os efeitos do crescimento industrial e do agronegócio, em Marabá, na produção e na circulação de povos, produtos e culturas."}]},{"serie":"8º ano","bimestre":"1º bimestre","unidade":"O antigo regime em crise.","objeto":"A Revolução Francesa e suas influências na América e no mundo.","habilidades":[{"codigo":"EF08HI04","texto":"Identificar e relacionar os processos da Revolução Francesa e seus desdobramentos na Europa e no mundo."}]},{"serie":"8º ano","bimestre":"1º bimestre","unidade":"O antigo regime em crise.","objeto":"Os ecos da Revolução Francesa na América portuguesa: Inconfidência Mineira e Baiana.","habilidades":[{"codigo":"EF08HI05","texto":"Explicar os movimentos e as rebeliões da América portuguesa, articulando as temáticas locais e suas interfaces com processos ocorridos na Europa e nas Américas."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"Os conceitos de Estado, nação, território, governo e país.","habilidades":[{"codigo":"EF08HI06","texto":"Aplicar os conceitos de Estado, nação, território, governo e país para o entendimento de conflitos e tensões."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"A independência dos Estados Unidos da América.","habilidades":[{"codigo":"EF08HI07","texto":"Identificar e contextualizar as especificidades dos diversos processos de independência nas Américas, seus aspectos populacionais e suas conformações territoriais."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"A independência da América Espanhola.","habilidades":[{"codigo":"EF08HI08","texto":"Conhecer o ideário dos líderes dos movimentos independentistas e seu papel nas revoluções que levaram à independência das colônias hispano-americanas."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"A independência do Haiti.","habilidades":[{"codigo":"EF08HI09","texto":"Conhecer as características e os principais pensadores do Pan-americanismo."},{"codigo":"EF08HI10","texto":"Identificar a Revolução de São Domingo como evento singular e desdobramento da Revolução Francesa e avaliar suas implicações."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"A instalação da corte portuguesa no Rio de Janeiro em 1808.","habilidades":[{"codigo":"EF08HI11","texto":"Identificar e explicar os protagonismos e a atuação de diferentes grupos sociais e étnicos nas lutas de independência no Brasil, na América espanhola e no Haiti."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"O processo de “independência” do Brasil.","habilidades":[{"codigo":"EF08HI12","texto":"Caracterizar a organização política e social no Brasil desde a chegada da Corte portuguesa, em 1808, até 1822 e seus desdobramentos para a história política brasileira."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"Os diferentes processos de independência na América Latina.","habilidades":[{"codigo":"EF08HI13","texto":"Analisar o processo de independência em diferentes países latino-americanos e comparar as formas de governo neles adotadas."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"O Indígena e o negro na formação do povo brasileiro e demais formações afro-americanas.","habilidades":[{"codigo":"EF08HI14","texto":"Discutir a noção da tutela dos grupos indígenas e a participação dos negros na sociedade brasileira do final do período colonial, identificando permanências na forma de preconceitos, estereótipos e violências sobre as populações indígenas e negras no Brasil e nas Américas."}]},{"serie":"8º ano","bimestre":"2º bimestre","unidade":"Independências nas Américas.","objeto":"A participação de índios e negro no processo de independência no Grão-Pará.","habilidades":[{"codigo":"EF08HI02MB","texto":"Identificar o protagonismo de indígenas e negros nas lutas pela independência no Grão-Pará."},{"codigo":"EF08HI03MB","texto":"Identificar a participação política e cultural do indígena em Marabá como forma de resistência às políticas de dominação."},{"codigo":"EF08HI04MB","texto":"Identificar e valorizar as manifestações de reafirmação da negritude no sudeste do Pará."}]},{"serie":"8º ano","bimestre":"3º bimestre","unidade":"O Brasil no século XIX.","objeto":"Estrutura política e sociedade brasileiras no Primeiro e Segundo Império.","habilidades":[{"codigo":"EF08HI15","texto":"Identificar e analisar o equilíbrio das forças e os sujeitos envolvidos nas disputas políticas durante o Primeiro e o Segundo Reinado."}]},{"serie":"8º ano","bimestre":"3º bimestre","unidade":"O Brasil no século XIX.","objeto":"Movimentos contestatórios na Amazônia e em outras regiões: Cabanagem, Sabinada, Balaiada e Farroupilha.","habilidades":[{"codigo":"EF08HI16","texto":"Identificar, comparar e analisar a diversidade política, social e regional nas rebeliões e nos movimentos contestatórios ao poder centralizado."}]},{"serie":"8º ano","bimestre":"3º bimestre","unidade":"O Brasil no século XIX.","objeto":"As “reformulações” territoriais e suas consequências sociais e econômicas na sociedade brasileira.","habilidades":[{"codigo":"EF08HI05MB","texto":"Identificar movimentos contestatórios regionais frente às políticas nacionais, exemplificando as manifestações peculiares à divisão do estado do Pará e os discursos relacionados emergentes nos respectivos municípios."},{"codigo":"EF08HI17","texto":"Relacionar as transformações territoriais, em razão de questões de fronteiras, com as tensões e conflitos durante o Império."}]},{"serie":"8º ano","bimestre":"3º bimestre","unidade":"O Brasil no século XIX.","objeto":"A Guerra do Paraguai: as causas e as consequências.","habilidades":[{"codigo":"EF08HI18","texto":"Identificar as questões internas e externas sobre a atuação do Brasil na Guerra do Paraguai e discutir diferentes versões sobre o conflito."},{"codigo":"EF08HI06MB","texto":"Conhecer o papel dos diferentes agentes na Guerra do Paraguai, destacando a participação do negro no conflito."}]},{"serie":"8º ano","bimestre":"3º bimestre","unidade":"O Brasil no século XIX.","objeto":"O sistema escravista brasileiro, as manifestações de resistência e as heranças do escravismo na atualidade; movimentos abolicionistas brasileiros e paraense.","habilidades":[{"codigo":"EF08HI19","texto":"Formular questionamentos sobre o legado da escravidão nas Américas, com base na seleção e consulta de fontes de diferentes naturezas."},{"codigo":"EF08HI20","texto":"Identificar e relacionar aspectos das estruturas sociais da atualidade com os legados da escravidão no Brasil e discutir a importância de ações afirmativas."}]},{"serie":"8º ano","bimestre":"3º bimestre","unidade":"O Brasil no século XIX.","objeto":"Políticas Indigenistas no Período Imperial; imaginário nacional e romantismo.","habilidades":[{"codigo":"EF08HI21","texto":"Identificar e analisar as políticas oficiais com relação ao indígena durante o Império."},{"codigo":"EF08HI22","texto":"Discutir o papel das culturas letradas, não letradas e das artes na produção das identidades no Brasil do século XIX."}]},{"serie":"8º ano","bimestre":"4º bimestre","unidade":"O mundo no século XIX.","objeto":"Darwinismo social, ideologias raciais e etnocentrismo nas práticas imperialistas do século XIX.","habilidades":[{"codigo":"EF08HI23","texto":"Estabelecer relações causais entre as ideologias raciais e o determinismo no contexto do imperialismo europeu e seus impactos na África e na Ásia."},{"codigo":"EF08HI07MB","texto":"Discutir a relação entre as teorias raciais e a estigmatização de grupos sociais historicamente marginalizados (negros, indígenas, PCDs, mulheres, LGBTQIA+);"}]},{"serie":"8º ano","bimestre":"4º bimestre","unidade":"O mundo no século XIX.","objeto":"Imperialismo, colonialismo e exploração econômica no século XIX: a partilha da África e Ásia por países europeus.","habilidades":[{"codigo":"EF08HI24","texto":"Reconhecer os principais produtos, utilizados pelos europeus, procedentes do continente africano e asiático durante o imperialismo e analisar os impactos sobre as comunidades locais na forma de organização e exploração econômica."}]},{"serie":"8º ano","bimestre":"4º bimestre","unidade":"O mundo no século XIX.","objeto":"Comunidades da floresta, de rios e grupos indígenas do sudeste do Pará frente à modernização e progresso na região.","habilidades":[{"codigo":"EF08HI08MB","texto":"Refletir sobre o processo de marginalização das comunidades da floresta, de rios e grupos indígenas no sudeste do Pará."}]},{"serie":"8º ano","bimestre":"4º bimestre","unidade":"O mundo no século XIX.","objeto":"As políticas imperialistas estadunidenses sobre a América Latina no século XIX.","habilidades":[{"codigo":"EF08HI25","texto":"Caracterizar e contextualizar aspectos das relações entre os Estados Unidos da América e a América Latina no século XIX."},{"codigo":"EF08HI09MB","texto":"Perceber a influência imperialista estadunidense no Brasil atual."}]},{"serie":"8º ano","bimestre":"4º bimestre","unidade":"O mundo no século XIX.","objeto":"As resistências ao Imperialismo na África e Ásia; discursos civilizatórios e marginalização.","habilidades":[{"codigo":"EF08HI26","texto":"Identificar e contextualizar o protagonismo das populações locais na resistência ao imperialismo na África e Ásia."},{"codigo":"EF08HI27","texto":"Identificar as tensões e os significados dos discursos civilizatórios, avaliando seus impactos negativos para os povos indígenas originários e as populações negras nas Américas."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"A Proclamação da República brasileira: os antecedentes e efetivação.","habilidades":[{"codigo":"EF09HI01","texto":"Descrever e contextualizar os principais aspectos sociais, culturais, econômicos e políticos da emergência da República no Brasil."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"Oligarquia, coronelismo e clientelismo no Brasil e em Marabá.","habilidades":[{"codigo":"EF09HI01MB","texto":"Identificar e contextualizar as rupturas e permanências do após Proclamação da República."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"O pensamento positivista e seus efeitos históricos no Brasil.","habilidades":[{"codigo":"EF09HI02MB","texto":"Descrever as características do pensamento positivista, seus efeitos na estrutura política e social brasileira e a relação com a vida cotidiana das comunidades marabaenses."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"Modernização e exclusão social na Primeira República e o negro na sociedade nacional.","habilidades":[{"codigo":"EF09HI02","texto":"Caracterizar e compreender os ciclos da história republicana, identificando particularidades da história local e regional até 1954."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"O negro na sociedade brasileira pós-abolição e as políticas positivistas de “Ordem e Progresso”.","habilidades":[{"codigo":"EF09HI03","texto":"Identificar os mecanismos de inserção dos negros na sociedade brasileira pós abolição e avaliar os seus resultados."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"A formação da sociedade brasileira e a valorização da diversidade; mito da democracia racial.","habilidades":[{"codigo":"EF09HI03MB","texto":"Analisar o mito da democracia racial no Brasil e posicionar-se contra o preconceito, a intolerância e as diferenças sociais."},{"codigo":"EF09HI04","texto":"Discutir a importância da participação da população negra na formação econômica, política e social do Brasil."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"A ideia de modernização e progresso no Brasil e os efeitos em Marabá; Urbanização e demografia.","habilidades":[{"codigo":"EF09HI05","texto":"Identificar os processos de urbanização e modernização da sociedade brasileira e avaliar suas contradições e impactos na região em que vive."},{"codigo":"EF09HI04MB","texto":"Analisar a dinâmica da urbanização de Marabá e a existência/ausência de políticas públicas."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"As políticas trabalhistas no Brasil em diferentes contextos e espaços.","habilidades":[{"codigo":"EF09HI06","texto":"Identificar e discutir o papel do trabalhismo como força política, social e cultural no Brasil, em diferentes escalas."}]},{"serie":"9º ano","bimestre":"1º bimestre","unidade":"Política e sociedade no Brasil da primeira república.","objeto":"Políticas indigenistas do SPI à FUNAI; movimentos sociais e diversidade.","habilidades":[{"codigo":"EF09HI07","texto":"Identificar e explicar, em meio a lógicas de inclusão e exclusão, as pautas dos povos indígenas, no contexto republicano (até 1964), e das populações afrodescendentes."},{"codigo":"EF09HI08","texto":"Identificar as transformações ocorridas no debate sobre as questões da diversidade no Brasil durante o século XX e compreender o significado das mudanças de abordagem em relação ao tema."},{"codigo":"EF09HI09","texto":"Relacionar as conquistas de direitos políticos, sociais e civis à atuação de movimentos sociais."}]},{"serie":"9º ano","bimestre":"2º bimestre","unidade":"Totalitarismos e conflitos mundiais.","objeto":"Colonialismo europeu na África e Ásia e as lógicas de resistência das populações locais.","habilidades":[{"codigo":"EF09HI14","texto":"Caracterizar e discutir as dinâmicas do colonialismo no continente africano e asiático e as lógicas de resistência das populações locais diante das questões internacionais."}]},{"serie":"9º ano","bimestre":"2º bimestre","unidade":"Totalitarismos e conflitos mundiais.","objeto":"Capitalismo e conflitos mundiais.","habilidades":[{"codigo":"EF09HI10","texto":"Identificar e relacionar as dinâmicas do capitalismo e suas crises, aos grandes conflitos mundiais e os conflitos vivenciados na Europa."}]},{"serie":"9º ano","bimestre":"2º bimestre","unidade":"Totalitarismos e conflitos mundiais.","objeto":"A Revolução Russa.","habilidades":[{"codigo":"EF09HI05MB","texto":"Identificar características do pensamento comunista e suas formas de aplicação."},{"codigo":"EF09HI11","texto":"Identificar as especificidades e os desdobramentos mundiais da Revolução Russa e seu significado histórico."}]},{"serie":"9º ano","bimestre":"2º bimestre","unidade":"Totalitarismos e conflitos mundiais.","objeto":"A crise do capitalismo em 1929 e em outros tempos.","habilidades":[{"codigo":"EF09HI12","texto":"Analisar a crise capitalista de 1929 e seus desdobramentos em relação à economia global."}]},{"serie":"9º ano","bimestre":"2º bimestre","unidade":"Totalitarismos e conflitos mundiais.","objeto":"O nazismo alemão e o fascismo italiano; Segunda Guerra Mundial e holocausto.","habilidades":[{"codigo":"EF09HI06MB","texto":"Relacionar as situações de crise do capitalismo com a ascensão de governos totalitários."},{"codigo":"EF09HI13","texto":"Descrever e contextualizar os processos da emergência do fascismo e do nazismo, a consolidação dos Estados totalitários e as práticas de extermínio (como o holocausto)."}]},{"serie":"9º ano","bimestre":"2º bimestre","unidade":"Totalitarismos e conflitos mundiais.","objeto":"Organização das Nações Unidas (ONU); Carta dos Direitos Humanos.","habilidades":[{"codigo":"EF09HI15","texto":"Discutir as motivações que levaram à criação da Organização das Nações Unidas (ONU) no contexto do pós-guerra e os propósitos dessa organização."},{"codigo":"EF09HI16","texto":"Relacionar a Carta dos Direitos Humanos ao processo de afirmação dos direitos fundamentais e de defesa da dignidade humana, valorizando as instituições voltadas para a defesa desses direitos e para a identificação dos agentes responsáveis por sua violação."}]},{"serie":"9º ano","bimestre":"3º bimestre","unidade":"Modernização, Ditadura civil-militar e redemocratização: o Brasil após 1946.","objeto":"Governo Dutra; segundo governo Vargas; governo JK; governos Jânio Quadros e João Goulart.","habilidades":[{"codigo":"EF09HI17","texto":"Identificar e analisar processos sociais, econômicos, culturais e políticos do Brasil a partir de 1946."},{"codigo":"EF09HI18","texto":"Descrever e analisar as relações entre as transformações urbanas e seus impactos na cultura brasileira entre 1946 e 1964 e na produção das desigualdades regionais e sociais."}]},{"serie":"9º ano","bimestre":"3º bimestre","unidade":"Modernização, Ditadura civil-militar e redemocratização: o Brasil após 1946.","objeto":"A formação da ditadura brasileira.","habilidades":[{"codigo":"EF09HI19","texto":"Identificar e compreender o processo que resultou na ditadura civil-militar no Brasil e discutir a emergência de questões relacionadas à memória e à justiça sobre os casos de violação dos direitos humanos."}]},{"serie":"9º ano","bimestre":"3º bimestre","unidade":"Modernização, Ditadura civil-militar e redemocratização: o Brasil após 1946.","objeto":"Os anos de chumbo e as resistências culturais e armadas; Guerrilha do Araguaia.","habilidades":[{"codigo":"EF09HI20","texto":"Discutir os processos de resistência e as propostas de reorganização da sociedade brasileira durante a ditadura civil-militar."}]},{"serie":"9º ano","bimestre":"3º bimestre","unidade":"Modernização, Ditadura civil-militar e redemocratização: o Brasil após 1946.","objeto":"Comunidades indígenas e quilombolas sobre as políticas militares.","habilidades":[{"codigo":"EF09HI21","texto":"Identificar e relacionar as demandas indígenas e quilombolas como forma de contestação ao modelo desenvolvimentista da ditadura."}]},{"serie":"9º ano","bimestre":"3º bimestre","unidade":"Modernização, Ditadura civil-militar e redemocratização: o Brasil após 1946.","objeto":"A abertura política de 1979: anistia e dinâmica eleitoral.","habilidades":[{"codigo":"EF09HI07MB","texto":"Discutir o processo de abertura de 1979 e analisar as ações políticas do governo militar."}]},{"serie":"9º ano","bimestre":"3º bimestre","unidade":"Modernização, Ditadura civil-militar e redemocratização: o Brasil após 1946.","objeto":"As Diretas Já e a Constituição de 1988; transformações após 1989; lideranças e organizações civis.","habilidades":[{"codigo":"EF09HI22","texto":"Discutir o papel da mobilização da sociedade brasileira do final do período ditatorial até a Constituição de 1988."},{"codigo":"EF09HI23","texto":"Identificar direitos civis, políticos e sociais expressos na Constituição de 1988 e relacioná-los à noção de cidadania e ao pacto da sociedade brasileira de combate a diversas formas de preconceito, como o racismo."},{"codigo":"EF09HI24","texto":"Analisar as transformações políticas, econômicas, sociais e culturais de 1989 aos dias atuais, identificando questões prioritárias para a promoção da cidadania e dos valores democráticos."},{"codigo":"EF09HI25","texto":"Relacionar as transformações da sociedade brasileira aos protagonismos da sociedade civil após 1989."}]},{"serie":"9º ano","bimestre":"3º bimestre","unidade":"Modernização, Ditadura civil-militar e redemocratização: o Brasil após 1946.","objeto":"As minorias em pauta; marginalização e desigualdade social; globalização.","habilidades":[{"codigo":"EF09HI26","texto":"Discutir e analisar as causas da violência contra populações marginalizadas (negros, indígenas, mulheres, homossexuais, camponeses, pobres etc.) com vistas à tomada de consciência e à construção de uma cultura de paz, empatia e respeito às pessoas."},{"codigo":"EF09HI08MB","texto":"Compreender o processo de marginalização, desigualdade social e violência de Estado."},{"codigo":"EF09HI27","texto":"Relacionar aspectos das mudanças econômicas, culturais e sociais ocorridas no Brasil a partir da década de 1990 ao papel do País no cenário internacional na era da globalização."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"A Guerra Fria e a disputa entre capitalismo e socialismo em diversas regiões do globo.","habilidades":[{"codigo":"EF09HI28","texto":"Identificar e analisar aspectos da Guerra Fria, seus principais conflitos e as tensões geopolíticas no interior dos blocos liderados por soviéticos e estadunidenses."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"Ditaduras latino-americanas alinhadas às políticas imperialistas estadunidense.","habilidades":[{"codigo":"EF09HI29","texto":"Descrever e analisar as experiências ditatoriais na América Latina, seus procedimentos e vínculos com o poder, em nível nacional e internacional, e a atuação de movimentos de contestação às ditaduras."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"Ditaduras latino-americanas: censura, opressão e políticas econômicas liberais.","habilidades":[{"codigo":"EF09HI30","texto":"Comparar as características dos regimes ditatoriais latino-americanos, com especial atenção para a censura política, a opressão e o uso da força, bem como para as reformas econômicas e sociais e seus impactos."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"Descolonização da África e da Ásia: expressões pós-coloniais.","habilidades":[{"codigo":"EF09HI31","texto":"Descrever e avaliar os processos de descolonização na África e na Ásia."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"O fenômeno da globalização: mudanças e permanências.","habilidades":[{"codigo":"EF09HI32","texto":"Analisar mudanças e permanências associadas ao processo de Globalização, considerando os argumentos dos movimentos críticos às políticas globais."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"As tecnologias digitais de informação e comunicação.","habilidades":[{"codigo":"EF09HI33","texto":"Analisar as transformações nas relações políticas locais e globais geradas pelo desenvolvimento das tecnologias digitais de informação e comunicação."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"As políticas econômicas em países da América Latina e os impactos sociais em seus respectivos territórios.","habilidades":[{"codigo":"EF09HI34","texto":"Discutir as motivações da adoção de diferentes políticas econômicas na América Latina, assim como seus impactos sociais nos países da região."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"Movimentos terroristas, processos migratórios e choques culturais na contemporaneidade.","habilidades":[{"codigo":"EF09HI35","texto":"Analisar os aspectos relacionados ao fenômeno do terrorismo na contemporaneidade, incluindo os movimentos migratórios e os choques entre diferentes grupos e culturas."}]},{"serie":"9º ano","bimestre":"4º bimestre","unidade":"Brasil e o mundo na história recente.","objeto":"Diversidade cultural global e combate ao preconceito, intolerância e violência.","habilidades":[{"codigo":"EF09HI36","texto":"Identificar e discutir as diversidades identitárias e seus significados históricos no início do século XXI, combatendo qualquer forma de preconceito e violência."}]}];
+
+const FORMATOS = [
+  {nome:"MARCAR X / ESCOLHER ENTRE POUCAS OPÇÕES", especial:false},
+  {nome:"VERDADEIRO OU FALSO", especial:false},
+  {nome:"LIGAR CONCEITOS, FRASES OU IMAGENS", especial:false},
+  {nome:"ASSOCIAÇÃO DE COLUNAS COM CAIXAS", especial:false},
+  {nome:"COMPLETAR COM BANCO DE PALAVRAS", especial:false},
+  {nome:"RESPOSTA ESCRITA CURTA COM PISTA NO TEXTO", especial:false},
+  {nome:"ORDENAR ACONTECIMENTOS / SEQUÊNCIA", especial:false},
+  {nome:"LINHA DO TEMPO SIMPLES", especial:false},
+  {nome:"CLASSIFICAR ELEMENTOS EM GRUPOS", especial:false},
+  {nome:"OBSERVAR IMAGEM E RESPONDER", especial:false},
+  {nome:"CAÇA-PALAVRAS TEMÁTICO", especial:true},
+  {nome:"CRUZADINHA COM PALAVRAS-CHAVE", especial:true},
+  {nome:"DECIFRAR CÓDIGOS OU SÍMBOLOS", especial:true},
+  {nome:"RECORTAR E COLAR PALAVRAS NAS LACUNAS", especial:true},
+  {nome:"RECORTAR E ORGANIZAR TIRAS DE TEXTO OU IMAGEM", especial:true},
+  {nome:"ÁLBUM DE FIGURINHAS: RECORTAR IMAGENS E COLAR NOS QUADROS CORRETOS", especial:true},
+  {nome:"PINTAR SOMENTE AS IMAGENS RELACIONADAS AO TEMA, COM DISTRATORES", especial:true},
+  {nome:"LIGAR IMAGENS ÀS PALAVRAS CORRESPONDENTES", especial:true},
+  {nome:"LABIRINTO TEMÁTICO: PERSONAGEM ATÉ O OBJETO OU SÍMBOLO CORRETO", especial:true},
+  {nome:"ENCONTRAR ELEMENTOS INTRUSOS EM UMA IMAGEM", especial:true},
+  {nome:"PINTAR MAPA, BANDEIRA OU ELEMENTO SEGUINDO UMA REFERÊNCIA", especial:true},
+  {nome:"DESENHO GUIADO / REPRODUZIR UM MODELO SIMPLES", especial:true}
+];
+
+const $ = id => document.getElementById(id);
+const val = id => (($(id)?.value)||"").trim();
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+function montarPlano(){
+  const p={};
+  registrosPlano.forEach(r=>{
+    p[r.serie] ??= {};
+    p[r.serie][r.bimestre] ??= {};
+    p[r.serie][r.bimestre][r.unidade] ??= [];
+    p[r.serie][r.bimestre][r.unidade].push(r);
+  });
+  return p;
+}
+const plano=montarPlano();
+
+function toast(msg){
+  $("toast").textContent=msg;
+  $("toast").style.display="block";
+  clearTimeout(window.__toast);
+  window.__toast=setTimeout(()=>$("toast").style.display="none",2200);
+}
+
+function preencherSeries(){
+  $("serie").innerHTML='<option value="">SELECIONE</option>'+
+    Object.keys(plano).map(s=>`<option value="${esc(s)}">${esc(s.toUpperCase())}</option>`).join("");
+}
+
+function resetAbaixo(nivel){
+  if(nivel==="serie"){
+    $("bimestre").innerHTML='<option value="">SELECIONE A SÉRIE</option>';
+    $("unidade").innerHTML='<option value="">SELECIONE O BIMESTRE</option>';
+    $("objeto").innerHTML='<option value="">SELECIONE A UNIDADE</option>';
+  }else if(nivel==="bimestre"){
+    $("unidade").innerHTML='<option value="">SELECIONE O BIMESTRE</option>';
+    $("objeto").innerHTML='<option value="">SELECIONE A UNIDADE</option>';
+  }else if(nivel==="unidade"){
+    $("objeto").innerHTML='<option value="">SELECIONE A UNIDADE</option>';
+  }
+  $("habilidades").innerHTML='<div class="help">SELECIONE O OBJETO DE CONHECIMENTO.</div>';
+}
+
+function carregarBimestres(){
+  resetAbaixo("serie");
+  const s=val("serie");
+  if(s) $("bimestre").innerHTML='<option value="">SELECIONE</option>'+
+    Object.keys(plano[s]).map(x=>`<option value="${esc(x)}">${esc(x.toUpperCase())}</option>`).join("");
+  atualizarResumo();
+}
+function carregarUnidades(){
+  resetAbaixo("bimestre");
+  const s=val("serie"),b=val("bimestre");
+  if(s&&b) $("unidade").innerHTML='<option value="">SELECIONE</option>'+
+    Object.keys(plano[s][b]).map(x=>`<option value="${esc(x)}">${esc(x.toUpperCase())}</option>`).join("");
+  atualizarResumo();
+}
+function carregarObjetos(){
+  resetAbaixo("unidade");
+  const s=val("serie"),b=val("bimestre"),u=val("unidade");
+  if(s&&b&&u) $("objeto").innerHTML='<option value="">SELECIONE</option>'+
+    plano[s][b][u].map((x,i)=>`<option value="${i}">${esc(x.objeto.toUpperCase())}</option>`).join("");
+  atualizarResumo();
+}
+function itemAtual(){
+  const s=val("serie"),b=val("bimestre"),u=val("unidade"),i=val("objeto");
+  if(!s||!b||!u||i==="") return null;
+  return plano[s][b][u][Number(i)];
+}
+function carregarHabilidades(){
+  const item=itemAtual();
+  if(!item){
+    $("habilidades").innerHTML='<div class="help">SELECIONE O OBJETO DE CONHECIMENTO.</div>';
+    return atualizarResumo();
+  }
+  $("habilidades").innerHTML=item.habilidades.map((h,i)=>`
+    <label class="skill">
+      <input type="checkbox" class="hab" value="${i}" checked>
+      <span><strong>${esc(h.codigo)}</strong> — ${esc(h.texto)}</span>
+    </label>`).join("");
+  document.querySelectorAll(".hab").forEach(x=>x.addEventListener("change",atualizarResumo));
+  atualizarResumo();
+}
+function habsMarcadas(){
+  const item=itemAtual(); if(!item) return [];
+  return [...document.querySelectorAll(".hab:checked")].map(x=>item.habilidades[Number(x.value)]);
+}
+
+function montarFormatos(){
+  $("formatos").innerHTML=FORMATOS.map((f,i)=>`
+    <label class="format-item ${f.especial?"special":""}">
+      <input type="checkbox" class="fmt" value="${i}">
+      <span>${esc(f.nome)}</span>
+    </label>`).join("");
+  document.querySelectorAll(".fmt").forEach(x=>x.addEventListener("change",onFormatoChange));
+}
+function formatosMarcados(){
+  return [...document.querySelectorAll(".fmt:checked")].map(x=>FORMATOS[Number(x.value)].nome);
+}
+function onFormatoChange(e){
+  if(val("estrutura")==="unica" && e.target.checked){
+    document.querySelectorAll(".fmt").forEach(x=>{if(x!==e.target)x.checked=false;});
+  }
+  atualizarResumo();
+}
+
+function ajustarInterface(){
+  const unica=val("estrutura")==="unica";
+  const manual=val("modo")==="manual";
+  $("qtdWrap").style.display=unica?"none":"block";
+  $("grupoFormatos").style.display=manual?"block":"none";
+
+  $("modoNota").textContent=unica
+    ? (manual
+       ? "ATIVIDADE ÚNICA: MARQUE APENAS UM FORMATO. A FOLHA SERÁ DEDICADA A ESSA ÚNICA PROPOSTA."
+       : "ATIVIDADE ÚNICA: A IA ESCOLHERÁ UMA PROPOSTA VISUAL/LÚDICA ADEQUADA À HABILIDADE.")
+    : (manual
+       ? "FOLHA COM ATIVIDADES: MARQUE OS FORMATOS QUE PODERÃO SER DISTRIBUÍDOS NAS 4 ATIVIDADES."
+       : "FOLHA COM ATIVIDADES: A IA ESCOLHERÁ UMA COMBINAÇÃO VARIADA.");
+
+  $("formatHelp").textContent=unica
+    ? "ESCOLHA EXATAMENTE UM FORMATO. OS ITENS EM FUNDO AMARELO SÃO MODELOS MAIS VISUAIS/LÚDICOS."
+    : "MARQUE UM OU MAIS FORMATOS. A IA USARÁ SOMENTE OS QUE ESTIVEREM MARCADOS.";
+
+  if(unica){
+    const marcados=[...document.querySelectorAll(".fmt:checked")];
+    if(marcados.length>1) marcados.slice(1).forEach(x=>x.checked=false);
+  }
+  ajustarTextoCor();
+  atualizarResumo();
+}
+
+function ajustarTextoCor(){
+  const temTexto=$("textoApoio").checked;
+  $("dicaCor").disabled=!temTexto;
+  $("dicaCorLabel").classList.toggle("disabled",!temTexto);
+  if(!temTexto) $("dicaCor").checked=false;
+}
+
+function atualizarResumo(){
+  const item=itemAtual();
+  const habs=habsMarcadas();
+  const unica=val("estrutura")==="unica";
+  const manual=val("modo")==="manual";
+  const parts=[];
+  if(val("serie")) parts.push(`<strong>${esc(val("serie").toUpperCase())}</strong>`);
+  if(val("bimestre")) parts.push(`<strong>${esc(val("bimestre").toUpperCase())}</strong>`);
+  if(item) parts.push(`<br><strong>OBJETO:</strong> ${esc(item.objeto)}`);
+  if(habs.length) parts.push(`<br><strong>HABILIDADE:</strong> ${habs.map(h=>esc(h.codigo)).join(", ")}`);
+  parts.push(`<br><strong>ESTRUTURA:</strong> ${unica?"ATIVIDADE ÚNICA":"4 ATIVIDADES"}`);
+  parts.push(`<br><strong>TIPOS:</strong> ${manual?"MANUAL":"ALEATÓRIO"}`);
+  $("resumo").innerHTML=parts.length?parts.join(" · "):"SELECIONE OS DADOS DO PLANO ANUAL.";
+}
+
+function blocoDesign(linhas, padraoApostila, usarImagens, decoracao){
+  linhas.push("");
+  linhas.push("MODELO VISUAL FIXO E OBRIGATÓRIO");
+
+  if(padraoApostila){
+    linhas.push("- A FOLHA DEVE TER APARÊNCIA MUITO PRÓXIMA DE UMA ATIVIDADE ESCOLAR ADAPTADA MONTADA NO WORD, E NÃO DE UM CARTAZ, INFOGRÁFICO OU POSTER.");
+    linhas.push("- A PÁGINA DEVE SER A4 VERTICAL, COM FUNDO BRANCO E BORDA PRETA FINA.");
+    linhas.push("- O TÍTULO PRINCIPAL DEVE FICAR DENTRO DE UMA CAIXA ARREDONDADA OU FAIXA DESTACADA.");
+    linhas.push("- O TEXTO DE APOIO DEVE SER REALMENTE CURTO, SEM GRANDES BLOCOS, E FICAR NA PARTE SUPERIOR DA FOLHA.");
+    linhas.push("- USE PALAVRAS IMPORTANTES DESTACADAS COMO SE FOSSE MARCA-TEXTO DO WORD.");
+    linhas.push('- A SEÇÃO "ATIVIDADES" DEVE FICAR BEM MARCADA EM UMA CAIXA, FAIXA OU SELO VISUAL.');
+    linhas.push("- USE COMANDOS CURTOS, CONCRETOS E EM ETAPAS.");
+    linhas.push("- USE PISTAS POR CORES, SETAS, CAIXAS E IMAGENS, MAS SEM REVELAR A RESPOSTA.");
+    linhas.push("- AS ALTERNATIVAS DEVEM FICAR BEM ESPAÇADAS.");
+    linhas.push("- QUANDO HOUVER QUESTÕES DE DESENHAR OU ESCREVER, DEIXE UMA ÁREA GRANDE E CONFORTÁVEL.");
+    linhas.push("- MANTENHA O VISUAL LIMPO, COM MUITO ESPAÇO EM BRANCO E BOA ORGANIZAÇÃO.");
+    linhas.push("- O RESULTADO PRECISA PARECER UMA TAREFA ADAPTADA PRONTA, VISUALMENTE CUIDADA E FÁCIL DE USAR.");
+    linhas.push("- EM FOLHAS COM VÁRIAS QUESTÕES, USE UMA ÚNICA COLUNA VERTICAL; NÃO USE QUADROS DE QUESTÕES LADO A LADO.");
+    linhas.push("- NÃO ENVOLVA CADA QUESTÃO EM UMA CAIXA OU RETÂNGULO. A DIAGRAMAÇÃO DEVE SER ABERTA, LEVE E PARECIDA COM UMA FOLHA FEITA NO WORD.");
+    linhas.push("- USE CAIXAS APENAS QUANDO ELAS FOREM PARTE DA PRÓPRIA TAREFA: BANCO DE PALAVRAS, ÁREA DE DESENHO, QUADRO PARA COLAR, CAMPO DE RESPOSTA OU ELEMENTO DE ASSOCIAÇÃO.");
+    linhas.push("- NÃO RESERVE ESPAÇO DA FOLHA PARA METADADOS PEDAGÓGICOS OU SEÇÕES EXTRAS QUE NÃO FAÇAM PARTE DA TAREFA DO ALUNO.");
+  } else {
+    linhas.push("- USE FOLHA BRANCA, A4 VERTICAL, BORDA FINA PRETA, TÍTULO VISÍVEL E DIAGRAMAÇÃO LIMPA.");
+  }
+
+  linhas.push("- ORGANIZE A FOLHA COM BLOCOS CLAROS, LINHAS, CAIXAS, QUADROS, ÁREAS DE RESPOSTA E SINALIZAÇÃO VISUAL QUANDO ISSO AJUDAR.");
+  linhas.push("- NÃO COMPRIMA A PÁGINA E NÃO ENCHA TODOS OS CANTOS.");
+  linhas.push("- EVITE APARÊNCIA DE INFOGRÁFICO, FLYER OU MATERIAL PUBLICITÁRIO.");
+
+  if(usarImagens){
+    linhas.push("- INCLUA IMAGEM HISTÓRICA PEQUENA E FUNCIONAL, OU OUTRAS ILUSTRAÇÕES DE APOIO, SOMENTE QUANDO ELAS AJUDAREM A COMPREENDER OU EXECUTAR A TAREFA.");
+    linhas.push("- AS IMAGENS DEVEM TER FUNÇÃO PEDAGÓGICA: INFORMAR, SERVIR DE PISTA, EXEMPLO, REFERÊNCIA OU PARTE DA PRÓPRIA ATIVIDADE.");
+  }
+  if(decoracao){
+    linhas.push("- USE DECORAÇÃO SUTIL, COM PEQUENOS DETALHES VISUAIS, SEM POLUIR A PÁGINA.");
+    linhas.push("- SETAS, ÍCONES E MARCADORES DEVEM ORIENTAR O QUE FAZER, NUNCA ENTREGAR A RESPOSTA.");
+    linhas.push("- NÃO USE MUITAS CORES, MUITOS ENFEITES OU ELEMENTOS GRANDES SEM FUNÇÃO.");
+  }
+}
+
+function blocoCor(linhas){
+  linhas.push("");
+  linhas.push("DICA DE COR - USE SOMENTE COMO PISTA DE LEITURA");
+  linhas.push("- USE DICA DE COR APENAS SE UMA QUESTÃO EXIGIR QUE O ALUNO LEIA O TEXTO EXPLICATIVO E ESCREVA UMA RESPOSTA.");
+  linhas.push("- DESTAQUE UMA PALAVRA-CHAVE NO TEXTO COM UMA COR SUAVE E REPITA A MESMA COR SOMENTE EM UM PEQUENO TRECHO-PISTA DA QUESTÃO QUE PEDE ESSA INFORMAÇÃO.");
+  linhas.push("- A COR DEVE FAZER O ALUNO PERCEBER QUAL PARTE DO TEXTO RELER. ELA NÃO PODE INDICAR QUAL É A RESPOSTA.");
+  linhas.push("- A LINHA, LACUNA OU CAIXA DA RESPOSTA DEVE CONTINUAR VAZIA.");
+  linhas.push("- NÃO USE ESSA DICA DE COR EM MÚLTIPLA ESCOLHA, MARCAR X, CAÇA-PALAVRAS, LIGAR, VERDADEIRO OU FALSO OU OUTRA TAREFA EM QUE A COR POSSA ENTREGAR A RESPOSTA.");
+  linhas.push("- NÃO REPITA A MESMA COR EM CONCEITOS SEM RELAÇÃO.");
+}
+
+function regrasFormatoEspecifico(nome){
+  const regras={
+    "CAÇA-PALAVRAS TEMÁTICO":[
+      "CRIE UMA GRADE LIMPA, COM POUCAS PALAVRAS IMPORTANTES DA HABILIDADE.",
+      "MOSTRE A LISTA DE PALAVRAS A PROCURAR.",
+      "NÃO MARQUE, CIRCULE OU PINTE NENHUMA RESPOSTA DENTRO DA GRADE."
+    ],
+    "CRUZADINHA COM PALAVRAS-CHAVE":[
+      "USE POUCAS PALAVRAS E QUADRÍCULAS GRANDES.",
+      "AS PISTAS DEVEM SER CURTAS E CONCRETAS.",
+      "NÃO PREENCHA NENHUMA LETRA DA RESPOSTA."
+    ],
+    "DECIFRAR CÓDIGOS OU SÍMBOLOS":[
+      "CRIE UMA LEGENDA VISUAL SIMPLES LETRA/SÍMBOLO E DEPOIS UMA OU POUCAS PALAVRAS PARA DECIFRAR.",
+      "USE SÍMBOLOS GRANDES E BEM DISTINTOS."
+    ],
+    "RECORTAR E COLAR PALAVRAS NAS LACUNAS":[
+      "CRIE POUCAS LACUNAS GRANDES E UM BANCO DE PALAVRAS RECORTÁVEIS NA PARTE INFERIOR.",
+      "INCLUA LINHA TRACEJADA E PEQUENO SÍMBOLO DE TESOURA PARA SINALIZAR O RECORTE."
+    ],
+    "RECORTAR E ORGANIZAR TIRAS DE TEXTO OU IMAGEM":[
+      "CRIE TIRAS GRANDES E CLARAS PARA RECORTAR E ORGANIZAR/COLOCAR NA ORDEM CORRETA.",
+      "MANTENHA POUCAS TIRAS E TEXTO MUITO CURTO."
+    ],
+    "ÁLBUM DE FIGURINHAS: RECORTAR IMAGENS E COLAR NOS QUADROS CORRETOS":[
+      "A FOLHA DEVE FUNCIONAR COMO UM PEQUENO ÁLBUM: MOSTRE FIGURINHAS RECORTÁVEIS E QUADROS VAZIOS COM LEGENDAS PARA COLAR.",
+      "USE POUCOS ELEMENTOS, GRANDES E FÁCEIS DE RECORTAR.",
+      "MISTURE ALGUNS DISTRATORES SOMENTE SE NÃO TORNAR A TAREFA CONFUSA.",
+      "NÃO COLE AS FIGURINHAS NOS QUADROS: DEIXE A TAREFA PARA O ALUNO."
+    ],
+    "PINTAR SOMENTE AS IMAGENS RELACIONADAS AO TEMA, COM DISTRATORES":[
+      "MOSTRE UM CONJUNTO DE IMAGENS GRANDES, ALGUMAS RELACIONADAS AO TEMA E ALGUMAS DISTRATORAS.",
+      "USE DESENHOS DE CONTORNO OU ILUSTRAÇÕES FÁCEIS DE PINTAR.",
+      "NÃO PINTE NEM MARQUE PREVIAMENTE AS IMAGENS CORRETAS."
+    ],
+    "LIGAR IMAGENS ÀS PALAVRAS CORRESPONDENTES":[
+      "COLOQUE AS IMAGENS EM UMA FILEIRA E AS PALAVRAS EM OUTRA, COM BOM ESPAÇO ENTRE ELAS.",
+      "USE CÍRCULOS OU PONTOS DE PARTIDA PARA O ALUNO TRAÇAR AS LINHAS.",
+      "NÃO DESENHE AS LIGAÇÕES CORRETAS."
+    ],
+    "LABIRINTO TEMÁTICO: PERSONAGEM ATÉ O OBJETO OU SÍMBOLO CORRETO":[
+      "CRIE UM LABIRINTO SIMPLES, COM CAMINHOS LARGOS E POUCAS BIFURCAÇÕES.",
+      "COLOQUE UM PERSONAGEM/OBJETO DO TEMA NA ENTRADA E UM DESTINO HISTORICAMENTE RELACIONADO NA SAÍDA.",
+      "NÃO DESENHE O CAMINHO RESOLVIDO."
+    ],
+    "ENCONTRAR ELEMENTOS INTRUSOS EM UMA IMAGEM":[
+      "CRIE UMA CENA HISTÓRICA SIMPLES E INSIRA POUCOS ELEMENTOS QUE NÃO PERTENCEM AO CONTEXTO.",
+      "PEÇA PARA CIRCULAR OS INTRUSOS E, SE COUBER, ESCREVER QUANTOS ENCONTROU.",
+      "NÃO CIRCULE OS INTRUSOS."
+    ],
+    "PINTAR MAPA, BANDEIRA OU ELEMENTO SEGUINDO UMA REFERÊNCIA":[
+      "MOSTRE UMA REFERÊNCIA VISUAL PEQUENA E AO LADO/ABAIXO UMA VERSÃO EM CONTORNO PARA O ALUNO PINTAR.",
+      "USE FORMAS GRANDES E SIMPLES."
+    ],
+    "DESENHO GUIADO / REPRODUZIR UM MODELO SIMPLES":[
+      "MOSTRE UM MODELO VISUAL PEQUENO E UMA ÁREA GRANDE VAZIA PARA O ALUNO REPRODUZIR.",
+      "O MODELO DEVE SER SIMPLES E RELACIONADO AO CONTEÚDO."
+    ]
+  };
+  return regras[nome]||[];
+}
+
+function gerarPrompt(){
+  const item=itemAtual();
+  const habs=habsMarcadas();
+  if(!item||!habs.length) return toast("SELECIONE O OBJETO E A HABILIDADE.");
+
+  const unica=val("estrutura")==="unica";
+  const manual=val("modo")==="manual";
+  const fmts=formatosMarcados();
+  const qtd=unica?1:Math.max(2,Math.min(8,Number(val("qtd"))||4));
+
+  if(manual && !fmts.length) return toast(unica?"ESCOLHA UMA ATIVIDADE.":"MARQUE PELO MENOS UM TIPO.");
+  if(unica && manual && fmts.length!==1) return toast("NA ATIVIDADE ÚNICA, ESCOLHA APENAS UM TIPO.");
+
+  const padraoApostila=$("padraoApostila").checked;
+  const temTexto=$("textoApoio").checked;
+  const textosCurtos=$("textosCurtos").checked;
+  const usarImagens=$("usarImagens").checked;
+  const decoracao=$("decoracao").checked;
+  const dicaCor=temTexto && $("dicaCor").checked;
+  const cabecalho=$("cabecalho").checked;
+  const gabarito=$("gabarito").checked;
+  const titulo=val("titulo");
+  const obs=val("obs");
+
+  const linhas=[];
+  linhas.push("CRIE UMA IMAGEM DE UMA TAREFA ADAPTADA DE HISTÓRIA.");
+  linhas.push("");
+  linhas.push("A IMAGEM DEVE SER A PRÓPRIA FOLHA DA ATIVIDADE PRONTA PARA O ALUNO, EM FORMATO A4 VERTICAL (RETRATO), COM FUNDO BRANCO E BOA QUALIDADE PARA IMPRESSÃO.");
+  linhas.push("TODO O TEXTO VISÍVEL NA FOLHA DEVE ESTAR EM LETRA DE FORMA, COM TODAS AS PALAVRAS EM LETRAS MAIÚSCULAS.");
+  linhas.push("NÃO MOSTRE UMA FOTO DE UMA FOLHA SOBRE UMA MESA: GERE DIRETAMENTE O DESIGN DA PÁGINA.");
+  linhas.push("");
+
+  linhas.push("DADOS DO PLANO ANUAL - CONTEXTO INTERNO PARA A IA, NÃO EXIBIR ESTES DADOS NA FOLHA DO ALUNO");
+  linhas.push(`ANO/SÉRIE: ${val("serie")}`);
+  linhas.push(`BIMESTRE: ${val("bimestre")}`);
+  linhas.push(`UNIDADE TEMÁTICA: ${val("unidade")}`);
+  linhas.push(`OBJETO DE CONHECIMENTO: ${item.objeto}`);
+  if(titulo) linhas.push(`TÍTULO DESEJADO: ${titulo}`);
+  linhas.push("HABILIDADE(S) DE HISTÓRIA:");
+  habs.forEach(h=>linhas.push(`${h.codigo} — ${h.texto}`));
+
+  linhas.push("");
+  linhas.push("PÚBLICO E NÍVEL DE APOIO");
+  linhas.push("ESTUDANTES AUTISTAS, COM DEFICIÊNCIA INTELECTUAL E/OU OUTRAS DIFICULDADES DE APRENDIZAGEM.");
+  linhas.push(`NÍVEL DE APOIO: ${val("apoio")}.`);
+  if(obs) linhas.push(`OBSERVAÇÃO DO PROFESSOR: ${obs}`);
+
+  linhas.push("");
+  linhas.push("PARTE FIXA OBRIGATÓRIA DO PROMPT");
+  linhas.push("- A IMAGEM FINAL DEVE MOSTRAR SOMENTE A FOLHA DO ALUNO. OS DADOS DO PLANO ANUAL SERVEM APENAS PARA A IA PLANEJAR O CONTEÚDO E NÃO DEVEM APARECER COMO QUADRO PEDAGÓGICO NA FOLHA.");
+  linhas.push("- NÃO MOSTRE NA FOLHA: CÓDIGO DA HABILIDADE, TEXTO DA HABILIDADE, BNCC, BIMESTRE, UNIDADE TEMÁTICA, OBJETO DE CONHECIMENTO, PÚBLICO-ALVO, NÍVEL DE APOIO OU EXPLICAÇÕES SOBRE A ADAPTAÇÃO.");
+  linhas.push("- NÃO CRIE QUADRO DE HABILIDADE, QUADRO DE OBJETIVO, QUADRO DE BNCC OU BLOCO COM INFORMAÇÕES DO PLANO.");
+  linhas.push("- SEMPRE GERE UMA FOLHA A4 VERTICAL, COM FUNDO BRANCO E BORDA PRETA FINA.");
+  linhas.push("- O TÍTULO DEVE FICAR EM CAIXA ARREDONDADA COM DESTAQUE.");
+  linhas.push("- O TEXTO DE APOIO DEVE SER CURTO DE VERDADE, SEM GRANDES BLOCOS.");
+  linhas.push("- USE IMAGEM HISTÓRICA PEQUENA E FUNCIONAL QUANDO ELA AJUDAR.");
+  linhas.push("- DESTAQUE PALAVRAS IMPORTANTES COMO SE FOSSE MARCA-TEXTO DO WORD.");
+  linhas.push('- A SEÇÃO "ATIVIDADES" DEVE FICAR BEM MARCADA.');
+  linhas.push("- USE COMANDOS CURTOS, CONCRETOS E EM ETAPAS.");
+  linhas.push("- USE PISTAS POR CORES, SETAS, CAIXAS E IMAGENS, MAS SEM REVELAR A RESPOSTA.");
+  linhas.push("- AS CORES SÓ DEVEM APARECER QUANDO TIVEREM FUNÇÃO PEDAGÓGICA CLARA, COMO MARCA-TEXTO, PISTA DE COR OU PEQUENO DESTAQUE DE SEÇÃO.");
+  linhas.push("- NÃO PINTE OS NÚMEROS DAS QUESTÕES COM CORES DIFERENTES E NÃO COLOQUE OS NÚMEROS DENTRO DE QUADRADOS COLORIDOS.");
+  linhas.push("- NUMERE AS QUESTÕES DE FORMA SIMPLES, EM PRETO, COMO 1), 2), 3), 4), SEM FUNDO COLORIDO.");
+  linhas.push("- DEIXE AS ALTERNATIVAS BEM ESPAÇADAS.");
+  linhas.push("- NÃO COLOQUE CADA QUESTÃO DENTRO DE UM RETÂNGULO, CARD, CAIXA OU MOLDURA PRÓPRIA.");
+  linhas.push("- AS QUESTÕES DEVEM APARECER EM FLUXO VERTICAL, UMA ABAIXO DA OUTRA, SEPARADAS PRINCIPALMENTE POR ESPAÇO EM BRANCO.");
+  linhas.push("- SE PRECISAR SEPARAR VISUALMENTE AS QUESTÕES, USE APENAS ESPAÇAMENTO OU UMA LINHA HORIZONTAL FINA E DISCRETA.");
+  linhas.push("- USE FORMATOS COMO CIRCULAR, MARCAR X, ASSOCIAR, COMPLETAR, OBSERVAR E DESENHAR, DE ACORDO COM O CONTEÚDO.");
+  linhas.push("- CADA QUESTÃO DEVE TRABALHAR, NO MÁXIMO, UMA HABILIDADE COGNITIVA PRINCIPAL.");
+  linhas.push("- QUANDO HOUVER DESENHO OU ESCRITA, DEIXE ÁREA GRANDE PARA O ALUNO.");
+  linhas.push("- O VISUAL DEVE FICAR MUITO PRÓXIMO DE UMA ATIVIDADE MONTADA NO WORD, E NÃO DE UM CARTAZ OU INFOGRÁFICO.");
+  linhas.push("- PRESERVE A IDENTIDADE VISUAL DA APOSTILA, MAS NÃO COPIE SEMPRE A MESMA ESTRUTURA DE QUESTÕES.");
+  linhas.push("- ESCOLHA O FORMATO MAIS SIMPLES E NATURAL PARA CADA CONTEÚDO, MANTENDO A IDENTIDADE VISUAL ADAPTADA.");
+  linhas.push("- NÃO ACRESCENTE SEÇÕES EXTRAS COMO 'PARA PENSAR', 'REFLITA', 'DESAFIO', 'VOCÊ SABIA?', 'OBJETIVO' OU PERGUNTA FINAL DE OPINIÃO, A MENOS QUE O PROFESSOR TENHA PEDIDO EXPRESSAMENTE.");
+  linhas.push("- A FOLHA DEVE TERMINAR APÓS A ÚLTIMA ATIVIDADE E O ESPAÇO NECESSÁRIO PARA A RESPOSTA.");
+
+  linhas.push("");
+  linhas.push("PRINCÍPIOS DE ADAPTAÇÃO");
+  linhas.push("- TRANSFORME A HABILIDADE EM UMA TAREFA CONCRETA, VISUAL E FÁCIL DE ENTENDER, SEM INFANTILIZAR A IDADE DO ESTUDANTE.");
+  linhas.push("- USE UMA AÇÃO PRINCIPAL POR COMANDO: LIGUE, PINTE, CIRCULE, COMPLETE, RECORTE, COLE, ESCREVA, OBSERVE OU MARQUE.");
+  linhas.push("- NÃO USE PEGADINHAS, DUPLA NEGAÇÃO, ENUNCIADOS LONGOS OU EXCESSO DE ALTERNATIVAS.");
+  linhas.push("- DEIXE A RESPOSTA DO ALUNO SEMPRE EM BRANCO. NÃO ENTREGUE A FOLHA RESOLVIDA.");
+  linhas.push("- USE PISTAS VISUAIS COMO SETAS, ÍCONES, QUADROS, BANCO DE PALAVRAS, MODELOS, LINHAS TRACEJADAS OU SÍMBOLOS QUANDO ISSO FACILITAR A COMPREENSÃO, MAS SEM REVELAR A RESPOSTA.");
+  linhas.push("- ANTES DE MONTAR A FOLHA, ANALISE A HABILIDADE E ESCOLHA UM FORMATO PEDAGÓGICO QUE COMBINE COM O CONTEÚDO. NÃO TRANSFORME TUDO EM PERGUNTAS COMUNS.");
+  linhas.push("- A TAREFA DEVE PARECER DE FATO UMA ATIVIDADE ADAPTADA PRONTA PARA USO, E NÃO APENAS UMA LISTA GENÉRICA DE QUESTÕES.");
+  linhas.push("- NÃO REPITA SEMPRE A MESMA ESTRUTURA DE QUESTÕES. MANTENHA A IDENTIDADE VISUAL, MAS ESCOLHA O FORMATO MAIS ADEQUADO E MAIS SIMPLES PARA O CONTEÚDO.");
+  linhas.push("- EM CADA QUESTÃO, TRABALHE APENAS UMA AÇÃO OU UMA EXIGÊNCIA COGNITIVA PRINCIPAL.");
+
+  if(textosCurtos){
+    linhas.push("");
+    linhas.push("TEXTOS E COMANDOS BEM CURTOS");
+    linhas.push("- USE O MÍNIMO DE TEXTO NECESSÁRIO.");
+    linhas.push("- O TEXTO EXPLICATIVO, SE HOUVER, DEVE TER CERCA DE 2 A 4 FRASES CURTAS OU 1 A 2 PARÁGRAFOS MUITO PEQUENOS.");
+    linhas.push("- CADA ENUNCIADO DEVE TER, PREFERENCIALMENTE, UMA FRASE CURTA.");
+  }
+
+  if(cabecalho){
+    linhas.push("");
+    linhas.push("CABEÇALHO");
+    linhas.push("- NO TOPO, INCLUA APENAS CAMPOS DISCRETOS PARA NOME, SÉRIE/TURMA E DATA.");
+    linhas.push("- NÃO INCLUA CÓDIGO DE HABILIDADE, BNCC, BIMESTRE, OBJETO DE CONHECIMENTO OU OUTROS DADOS DO PLANO NESSE CABEÇALHO.");
+  } else {
+    linhas.push("");
+    linhas.push("SEM CABEÇALHO");
+    linhas.push("- NÃO COLOQUE CAMPOS DE NOME, DATA, TURMA OU PROFESSOR.");
+  }
+
+  if(temTexto){
+    linhas.push("");
+    linhas.push("TEXTO EXPLICATIVO");
+    linhas.push("- INCLUA UM TEXTO DE APOIO BEM CURTO NA PARTE SUPERIOR DA FOLHA.");
+    linhas.push("- O TEXTO DEVE CONTER APENAS AS INFORMAÇÕES ESSENCIAIS PARA REALIZAR A ATIVIDADE.");
+  }
+
+  if(dicaCor) blocoCor(linhas);
+
+  blocoDesign(linhas,padraoApostila,usarImagens,decoracao);
+
+  linhas.push("");
+  linhas.push("ESTRUTURA DA ATIVIDADE");
+
+  if(unica){
+    linhas.push("- CRIE UMA ÚNICA ATIVIDADE AMPLIADA, OCUPANDO A MAIOR PARTE ÚTIL DA FOLHA.");
+    linhas.push("- NÃO ACRESCENTE OUTRAS QUESTÕES, SUBQUESTÕES OU EXERCÍCIOS EXTRAS.");
+    linhas.push("- A PÁGINA DEVE PARECER UMA FOLHA LÚDICA E ALTAMENTE ADAPTADA, COM ELEMENTOS GRANDES, POUCO TEXTO E MUITA CLAREZA VISUAL.");
+
+    if(manual){
+      const nome=fmts[0];
+      linhas.push(`- TIPO ÚNICO ESCOLHIDO PELO PROFESSOR: ${nome}.`);
+      regrasFormatoEspecifico(nome).forEach(r=>linhas.push(`- ${r}`));
+    }else{
+      const especiais=FORMATOS.filter(f=>f.especial).map(f=>f.nome);
+      linhas.push("- ESCOLHA ALEATORIAMENTE UMA ÚNICA PROPOSTA VISUAL/LÚDICA ADEQUADA À HABILIDADE ENTRE ESTAS POSSIBILIDADES:");
+      especiais.forEach(x=>linhas.push(`  • ${x}`));
+      linhas.push("- ESCOLHA APENAS UMA. NÃO MISTURE DUAS ATIVIDADES NA MESMA FOLHA.");
+      linhas.push("- A PÁGINA DEVE GIRAR TODA EM TORNO DESSA ÚNICA PROPOSTA, COMO NAS PÁGINAS MAIS LÚDICAS DA APOSTILA.");
+    }
+  }else{
+    linhas.push(`- CRIE EXATAMENTE ${qtd} ATIVIDADES CURTAS E BEM SEPARADAS NA MESMA FOLHA.`);
+    linhas.push("- ORGANIZE AS ATIVIDADES EM UMA ÚNICA COLUNA VERTICAL, UMA ABAIXO DA OUTRA, OCUPANDO A LARGURA ÚTIL DA PÁGINA.");
+    linhas.push("- NÃO ORGANIZE AS QUESTÕES EM DUAS COLUNAS, NÃO FAÇA GRADE 2 X 2 E NÃO COLOQUE DUAS QUESTÕES LADO A LADO.");
+    linhas.push("- CADA QUESTÃO DEVE OCUPAR A LARGURA ÚTIL DA FOLHA, MAS SEM SER FECHADA DENTRO DE UM CARD OU RETÂNGULO.");
+    linhas.push("- SEPARE UMA QUESTÃO DA OUTRA COM ESPAÇO EM BRANCO; SE NECESSÁRIO, USE UMA LINHA HORIZONTAL FINA.");
+    linhas.push("- DENTRO DE UMA MESMA QUESTÃO, DUAS OU TRÊS IMAGENS PODEM FICAR LADO A LADO SE ISSO FIZER PARTE DA TAREFA, MAS O BLOCO DA QUESTÃO CONTINUA EM UMA ÚNICA COLUNA.");
+    linhas.push("- AS ATIVIDADES DEVEM SER DIFERENTES ENTRE SI, MAS TODAS DEVEM CABER COM CONFORTO NA PÁGINA A4.");
+
+    if(manual){
+      linhas.push("- USE SOMENTE OS TIPOS MARCADOS PELO PROFESSOR:");
+      fmts.forEach(x=>linhas.push(`  • ${x}`));
+      linhas.push("- DISTRIBUA ESSES FORMATOS ENTRE AS ATIVIDADES. NÃO INVENTE FORMATOS FORA DA LISTA.");
+      fmts.forEach(nome=>regrasFormatoEspecifico(nome).forEach(r=>linhas.push(`- PARA ${nome}: ${r}`)));
+    }else{
+      linhas.push("- ESCOLHA ALEATORIAMENTE UMA COMBINAÇÃO VARIADA DE FORMATOS ADEQUADOS À HABILIDADE.");
+      linhas.push("- PENSE A FOLHA COMO UMA APOSTILA ADAPTADA: CADA ATIVIDADE DEVE TER SUA FUNÇÃO CLARA, UM APOIO VISUAL BEM DEFINIDO E UM FORMATO NATURAL PARA O CONTEÚDO.");
+      linhas.push("- ALTERNE ENTRE RECONHECIMENTO VISUAL, LIGAR/ASSOCIAR, COMPLETAR, MARCAR, ORDENAR, CAÇA-PALAVRAS, CÓDIGOS, RECORTE/COLE OU RESPOSTA CURTA.");
+      linhas.push("- NÃO USE SEMPRE A MESMA COMBINAÇÃO E NÃO FAÇA A FOLHA TODA EM MÚLTIPLA ESCOLHA.");
+      linhas.push("- ATIVIDADES LÚDICAS COMO CAÇA-PALAVRAS, RECORTE E COLE, CÓDIGOS OU LABIRINTO DEVEM APARECER DE VEZ EM QUANDO, NÃO TODAS AO MESMO TEMPO.");
+    }
+  }
+
+  if(gabarito){
+    linhas.push("");
+    linhas.push("GABARITO");
+    linhas.push("- DEPOIS DE GERAR A IMAGEM, APRESENTE O GABARITO DO PROFESSOR EM TEXTO SEPARADO.");
+    linhas.push("- NÃO COLOQUE RESPOSTAS OU MARCAÇÕES DE GABARITO DENTRO DA IMAGEM DA FOLHA DO ALUNO.");
+  }
+
+  linhas.push("");
+  linhas.push("CONFERÊNCIA FINAL ANTES DE GERAR");
+  linhas.push("- A4 VERTICAL.");
+  linhas.push("- TODAS AS PALAVRAS EM LETRAS MAIÚSCULAS.");
+  linhas.push("- FOLHA LIMPA, VISUAL E COM ESPAÇOS GRANDES.");
+  linhas.push("- SE HOUVER 4 QUESTÕES, ELAS DEVEM ESTAR EM UMA ÚNICA COLUNA, UMA ABAIXO DA OUTRA.");
+  linhas.push("- NÃO COLOCAR RETÂNGULO OU MOLDURA EM VOLTA DE CADA QUESTÃO.");
+  linhas.push("- NUMERAR AS QUESTÕES EM PRETO, SEM QUADRADOS COLORIDOS OU CORES DIFERENTES NOS NÚMEROS.");
+  linhas.push("- USAR COR SOMENTE QUANDO HOUVER FUNÇÃO PEDAGÓGICA CLARA.");
+  linhas.push("- NÃO EXIBIR HABILIDADE, BNCC, BIMESTRE, OBJETO, UNIDADE TEMÁTICA, NÍVEL DE APOIO OU OUTRO METADADO DO PLANO NA FOLHA.");
+  linhas.push("- NÃO CRIAR PERGUNTA EXTRA, REFLEXÃO FINAL OU BLOCO 'PARA PENSAR'.");
+  linhas.push("- NENHUMA RESPOSTA PREENCHIDA, CIRCULADA, LIGADA OU DESTACADA COMO CORRETA.");
+  linhas.push("- O CONTEÚDO DEVE ESTAR DIRETAMENTE LIGADO À HABILIDADE DE HISTÓRIA INFORMADA.");
+  linhas.push("");
+  linhas.push("GERE AGORA A IMAGEM DA FOLHA DA ATIVIDADE.");
+
+  const prompt=linhas.join("\\n");
+  $("promptOutput").value=prompt;
+  salvarHistorico(prompt,titulo,item);
+  toast("PROMPT GERADO.");
+}
+
+async function copiarTexto(texto){
+  if(!texto) return toast("NÃO HÁ PROMPT PARA COPIAR.");
+  try{await navigator.clipboard.writeText(texto);}
+  catch(e){
+    const ta=document.createElement("textarea");
+    ta.value=texto;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();
+  }
+  toast("PROMPT COPIADO.");
+}
+
+const HIST_KEY="hist_atividades_historia_aprimorado_v1";
+function lerHistorico(){
+  try{const h=JSON.parse(localStorage.getItem(HIST_KEY)||"[]");return Array.isArray(h)?h:[];}
+  catch(e){return [];}
+}
+function tituloHist(titulo,item){
+  const base=(titulo||item?.objeto||"ATIVIDADE DE HISTÓRIA").trim();
+  return base.length>92?base.slice(0,89)+"...":base;
+}
+function salvarHistorico(prompt,titulo,item){
+  const h=lerHistorico();
+  h.unshift({id:Date.now(),titulo:tituloHist(titulo,item),prompt});
+  localStorage.setItem(HIST_KEY,JSON.stringify(h.slice(0,50)));
+  renderHistorico();
+}
+function renderHistorico(){
+  const h=lerHistorico();
+  $("historicoLista").innerHTML=h.length?h.map(x=>`
+    <div class="history-row">
+      <button class="history-title" data-id="${x.id}" title="CLIQUE PARA COPIAR">${esc(x.titulo.toUpperCase())}</button>
+      <button class="history-copy" data-id="${x.id}">COPIAR</button>
+    </div>`).join(""):'<div class="empty">AINDA NÃO HÁ PROMPTS SALVOS NESTE NAVEGADOR.</div>';
+}
+function abrirAba(aba){
+  const hist=aba==="historico";
+  $("viewGerador").style.display=hist?"none":"block";
+  $("viewHistorico").style.display=hist?"block":"none";
+  $("tabGerador").classList.toggle("active",!hist);
+  $("tabHistorico").classList.toggle("active",hist);
+  if(hist)renderHistorico();
+}
+function limparOpcoes(){
+  $("titulo").value="";
+  $("estrutura").value="folha";
+  $("qtd").value="4";
+  $("apoio").value="médio";
+  $("modo").value="aleatorio";
+  $("padraoApostila").checked=true;
+  $("textoApoio").checked=true;
+  $("textosCurtos").checked=true;
+  $("usarImagens").checked=true;
+  $("decoracao").checked=true;
+  $("dicaCor").checked=true;
+  $("cabecalho").checked=false;
+  $("gabarito").checked=false;
+  $("obs").value="";
+  document.querySelectorAll(".fmt").forEach(x=>x.checked=false);
+  $("promptOutput").value="";
+  ajustarInterface();
+  toast("OPÇÕES RESTAURADAS.");
+}
+
+$("serie").addEventListener("change",carregarBimestres);
+$("bimestre").addEventListener("change",carregarUnidades);
+$("unidade").addEventListener("change",carregarObjetos);
+$("objeto").addEventListener("change",carregarHabilidades);
+$("estrutura").addEventListener("change",ajustarInterface);
+$("modo").addEventListener("change",ajustarInterface);
+$("textoApoio").addEventListener("change",()=>{ajustarTextoCor();atualizarResumo();});
+["padraoApostila","textosCurtos","usarImagens","decoracao","dicaCor","cabecalho","gabarito","apoio"].forEach(id=>$(id).addEventListener("change",atualizarResumo));
+$("btnGerar").addEventListener("click",gerarPrompt);
+$("btnCopiar").addEventListener("click",()=>copiarTexto($("promptOutput").value));
+$("btnLimpar").addEventListener("click",limparOpcoes);
+$("tabGerador").addEventListener("click",()=>abrirAba("gerador"));
+$("tabHistorico").addEventListener("click",()=>abrirAba("historico"));
+$("btnLimparHistorico").addEventListener("click",()=>{
+  if(confirm("APAGAR TODO O HISTÓRICO DE PROMPTS?")){
+    localStorage.removeItem(HIST_KEY);renderHistorico();toast("HISTÓRICO APAGADO.");
+  }
+});
+$("historicoLista").addEventListener("click",e=>{
+  const b=e.target.closest("[data-id]");if(!b)return;
+  const item=lerHistorico().find(x=>Number(x.id)===Number(b.dataset.id));
+  if(item)copiarTexto(item.prompt);
+});
+
+preencherSeries();
+montarFormatos();
+ajustarInterface();
+renderHistorico();
+atualizarResumo();
+</script>
+<footer class="site-footer">Profa. Ma. Edileuza dos Santos Ribeiro</footer>
+</body>
+</html>

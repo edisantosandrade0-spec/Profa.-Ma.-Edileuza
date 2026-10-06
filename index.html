@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Portal da Profa. Ma. Edileuza — formações de História, materiais, ferramentas e jogos educativos." />
+  <title>Profa. Ma. Edileuza | Formação de História</title>
+<link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&family=Italiana&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --cream:#f7f0e5;
+      --paper:#fbf7ef;
+      --green:#34492b;
+      --green-2:#49613b;
+      --green-soft:#dfe4d1;
+      --brown:#7a4b1c;
+      --gold:#ba7c2f;
+      --sand:#ead8bd;
+      --sand-2:#f0e4cf;
+      --ink:#2c241d;
+      --muted:#6b6259;
+      --line:#d4c3a8;
+      --shadow:0 18px 50px rgba(74,58,35,.12);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 8% 12%, rgba(186,124,47,.10), transparent 24%),
+        radial-gradient(circle at 88% 14%, rgba(52,73,43,.08), transparent 18%),
+        var(--cream);
+      font-family:"Inter",sans-serif;
+      min-height:100vh;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
+
+    .page{
+      width:min(1520px,96vw);
+      margin:0 auto;
+      padding:24px 0 42px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .corner-pattern{
+      position:absolute;
+      right:-80px;
+      top:-70px;
+      width:360px;
+      height:230px;
+      background:var(--green);
+      border-radius:0 0 0 120px;
+      z-index:0;
+      overflow:hidden;
+    }
+    .corner-pattern::before,
+    .corner-pattern::after{
+      content:"";
+      position:absolute;
+      left:26px;
+      right:26px;
+      height:12px;
+      border-top:4px solid #d3a55c;
+      border-bottom:4px solid #d3a55c;
+      border-radius:50%;
+      transform:rotate(8deg);
+    }
+    .corner-pattern::before{top:90px}
+    .corner-pattern::after{top:128px}
+
+    .topbar{
+      position:relative;
+      z-index:3;
+      display:flex;
+      justify-content:flex-end;
+      padding:8px 26px 0;
+    }
+    .topbar nav{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      flex-wrap:wrap;
+      font-size:.88rem;
+      font-weight:700;
+      letter-spacing:.02em;
+    }
+    .topbar nav a{
+      padding:8px 11px;
+      border-radius:999px;
+      transition:.2s ease;
+    }
+    .topbar nav a:hover{background:rgba(255,255,255,.6)}
+
+    .hero{
+      position:relative;
+      z-index:2;
+      display:grid;
+      grid-template-columns:minmax(390px,.94fr) minmax(650px,1.7fr);
+      grid-template-areas:
+        "portrait intro"
+        "lower lower";
+      background:rgba(251,247,239,.72);
+      border:1px solid rgba(126,95,49,.15);
+      border-radius:36px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(4px);
+    }
+
+    /* PARTE SUPERIOR ESQUERDA — FOTO */
+    .portrait-side{
+      grid-area:portrait;
+      position:relative;
+      min-height:690px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 28% 22%, rgba(196,137,56,.20), transparent 38%),
+        linear-gradient(155deg,#ead5b3 0%,#f3e9d8 48%,#d8dfc9 100%);
+    }
+
+    .portrait-side::before{
+      content:"";
+      position:absolute;
+      width:280px;
+      height:280px;
+      border-radius:50%;
+      background:#c59148;
+      opacity:.72;
+      left:-50px;
+      top:34px;
+    }
+
+    /* removido o recorte verde inferior antigo */
+    .portrait-side::after{display:none}
+
+    .portrait{
+      position:absolute;
+      z-index:3;
+      left:1.5%;
+      bottom:0;
+      width:96%;
+      height:100%;
+      object-fit:contain;
+      object-position:center bottom;
+      filter:drop-shadow(0 18px 18px rgba(40,31,18,.16));
+      mix-blend-mode:multiply;
+    }
+
+    /* elementos decorativos de baixo removidos */
+    .motif-left,
+    .leaf{display:none}
+
+    .motif-weave{
+      position:absolute;
+      z-index:2;
+      left:25px;
+      top:235px;
+      width:125px;
+      height:150px;
+      opacity:.64;
+      background:
+        linear-gradient(45deg,transparent 44%,#6e451e 45% 52%,transparent 53%),
+        linear-gradient(-45deg,transparent 44%,#34492b 45% 52%,transparent 53%);
+      background-size:30px 30px;
+      mask-image:linear-gradient(to bottom, transparent 0, black 16%, black 84%, transparent 100%);
+    }
+
+    /* PARTE SUPERIOR DIREITA */
+    .intro-side{
+      grid-area:intro;
+      padding:54px 56px 42px;
+      display:flex;
+      flex-direction:column;
+      gap:28px;
+      position:relative;
+      z-index:4;
+    }
+
+    .identity{padding-right:155px}
+
+    .name{
+      margin:0;
+      color:#4a2f18;
+      font-family:"Italiana","Cormorant Garamond",serif;
+      font-size:clamp(3.1rem,4.4vw,5.9rem);
+      font-weight:400;
+      line-height:.92;
+      letter-spacing:-.03em;
+    }
+    .role{
+      margin:16px 0 10px;
+      color:var(--green);
+      font-size:1.02rem;
+      font-weight:700;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+    }
+    .intro{
+      max-width:740px;
+      margin:0;
+      font-size:1.05rem;
+      line-height:1.65;
+      color:#51473e;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin:0 0 14px;
+      font-size:1.12rem;
+      letter-spacing:.02em;
+      font-weight:800;
+      text-transform:uppercase;
+    }
+    .section-title::before,
+    .section-title::after{
+      content:"";
+      flex:1;
+      height:1px;
+      background:linear-gradient(90deg,transparent,var(--line));
+    }
+    .section-title::after{
+      background:linear-gradient(90deg,var(--line),transparent);
+    }
+    .section-title span{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:var(--green);
+      color:white;
+      flex:0 0 38px;
+    }
+
+    .formation-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+    }
+
+    .card{
+      border:1px solid rgba(122,75,28,.09);
+      min-height:244px;
+      border-radius:19px;
+      padding:18px 16px 16px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      justify-content:flex-start;
+      position:relative;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .card:nth-child(odd){background:linear-gradient(180deg,#e8eadc,#f4f2e8)}
+    .card:nth-child(even){background:linear-gradient(180deg,#f3e4d0,#f8eee0)}
+    .card:hover{
+      transform:translateY(-4px);
+      box-shadow:0 14px 28px rgba(67,49,28,.09);
+      border-color:rgba(122,75,28,.18);
+    }
+    .num{
+      width:48px;
+      height:48px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      color:white;
+      background:var(--green);
+      font-family:"Cormorant Garamond",serif;
+      font-size:1.65rem;
+      font-weight:700;
+      margin-bottom:12px;
+    }
+    .card:nth-child(even) .num{background:var(--brown)}
+
+    .card-icon{
+      width:62px;
+      height:62px;
+      color:#67503c;
+      margin-bottom:10px;
+    }
+    .card h3{
+      margin:2px 0 7px;
+      font-size:1.02rem;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+    }
+    .card p{
+      margin:0;
+      color:#5f574f;
+      line-height:1.45;
+      font-size:.84rem;
+    }
+
+    .theme-tag{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:28px;
+      padding:6px 9px;
+      margin-top:12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(52,73,43,.10);
+      font-size:.7rem;
+      font-weight:800;
+      line-height:1.15;
+      color:var(--green);
+    }
+    .card:nth-child(even) .theme-tag{color:var(--brown)}
+
+    /* CONTEÚDO INFERIOR OCUPA TODA A LARGURA */
+    .lower-content{
+      grid-area:lower;
+      padding:38px 54px 34px;
+      border-top:1px solid rgba(122,75,28,.11);
+      background:
+        linear-gradient(180deg,rgba(247,240,229,.40),rgba(251,247,239,.94));
+      display:flex;
+      flex-direction:column;
+      gap:34px;
+    }
+
+    /* FERRAMENTAS */
+    .tools-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+
+    .tool{
+      min-height:196px;
+      border-radius:22px;
+      border:1px solid rgba(122,75,28,.12);
+      overflow:hidden;
+      transition:.18s ease;
+      position:relative;
+    }
+    .tool:hover{
+      transform:translateY(-3px);
+      box-shadow:0 12px 26px rgba(67,49,28,.09);
+    }
+
+    .tool-plan{
+      background:#e7ead7;
+      display:grid;
+      grid-template-columns:46% 1fr;
+      min-height:196px;
+    }
+
+    .tool-plan-preview{
+      min-height:196px;
+      background:
+        linear-gradient(145deg,rgba(52,73,43,.08),rgba(255,255,255,.22)),
+        #d7ddc8;
+      border-right:1px solid rgba(52,73,43,.12);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      position:relative;
+    }
+    .tool-plan-preview::before{
+      content:"IMAGEM DO APP";
+      font-size:.72rem;
+      letter-spacing:.12em;
+      font-weight:800;
+      color:rgba(52,73,43,.55);
+    }
+    .tool-plan-preview img{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .tool-plan-copy{
+      padding:26px 28px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      position:relative;
+    }
+    .tool-plan h3,
+    .tool-prompt h3{
+      margin:0 0 8px;
+      font-size:1.11rem;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+    }
+    .tool-plan h3{color:var(--green)}
+    .tool-plan .arrow{
+      position:absolute;
+      right:22px;
+      bottom:18px;
+      color:var(--green);
+    }
+    .tool-plan p,
+    .tool-prompt p{
+      margin:0;
+      color:#4f4740;
+      font-size:.91rem;
+      line-height:1.5;
+    }
+    .arrow{font-size:2rem;color:var(--green)}
+
+    /* Criador de prompt como card de APP/foto */
+    .tool-prompt{
+      background:#f1dec3;
+      display:grid;
+      grid-template-columns:46% 1fr;
+      min-height:196px;
+    }
+    .tool-app-preview{
+      min-height:196px;
+      background:
+        linear-gradient(145deg,rgba(122,75,28,.09),rgba(255,255,255,.22)),
+        #d8c09c;
+      border-right:1px solid rgba(122,75,28,.12);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      position:relative;
+    }
+    .tool-app-preview::before{
+      content:"IMAGEM DO APP";
+      font-size:.72rem;
+      letter-spacing:.12em;
+      font-weight:800;
+      color:rgba(74,47,24,.55);
+    }
+    .tool-app-preview img{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .tool-prompt-copy{
+      padding:26px 28px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      position:relative;
+    }
+    .tool-prompt h3{color:var(--brown)}
+    .tool-prompt .arrow{
+      position:absolute;
+      right:22px;
+      bottom:18px;
+      color:var(--brown);
+    }
+
+    /* SCRATCH */
+    .scratch-shell{
+      background:linear-gradient(135deg,#eee4cf,#e4e8d9);
+      border:1px solid rgba(122,75,28,.10);
+      border-radius:24px;
+      padding:24px;
+    }
+
+    .scratch-intro{
+      display:flex;
+      justify-content:space-between;
+      gap:22px;
+      align-items:flex-end;
+      margin-bottom:18px;
+    }
+    .scratch-intro h3{
+      margin:0 0 6px;
+      color:var(--green);
+      font-family:"Cormorant Garamond",serif;
+      font-size:1.95rem;
+    }
+    .scratch-intro p{
+      margin:0;
+      max-width:760px;
+      color:#5f574f;
+      line-height:1.5;
+      font-size:.91rem;
+    }
+    .scratch-badge{
+      flex:0 0 auto;
+      border-radius:999px;
+      padding:9px 13px;
+      background:rgba(255,255,255,.64);
+      color:var(--brown);
+      font-weight:800;
+      font-size:.76rem;
+      letter-spacing:.04em;
+    }
+
+    .scratch-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+    .game-card{
+      background:rgba(255,255,255,.62);
+      border:1px solid rgba(52,73,43,.12);
+      border-radius:18px;
+      overflow:hidden;
+      transition:.18s ease;
+    }
+    .game-card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 12px 24px rgba(67,49,28,.08);
+    }
+    .game-thumb{
+      height:150px;
+      display:grid;
+      place-items:center;
+      background:
+        linear-gradient(145deg,rgba(52,73,43,.08),rgba(186,124,47,.14)),
+        #f2eadc;
+      color:rgba(52,73,43,.55);
+      font-size:.74rem;
+      font-weight:800;
+      letter-spacing:.11em;
+      text-align:center;
+      padding:18px;
+    }
+    .game-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .game-copy{padding:16px 17px 18px}
+    .game-copy h4{
+      margin:0 0 7px;
+      font-size:1rem;
+      color:var(--green);
+    }
+    .game-copy p{
+      margin:0;
+      color:#655b52;
+      line-height:1.45;
+      font-size:.83rem;
+    }
+
+    /* DRIVE */
+    .drive{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    .drive-main{
+      border-radius:22px;
+      padding:28px 30px;
+      background:linear-gradient(135deg,#32472b,#536846);
+      color:white;
+      position:relative;
+      overflow:hidden;
+    }
+    .drive-main::after{
+      content:"";
+      position:absolute;
+      width:210px;
+      height:210px;
+      border:1px solid rgba(255,255,255,.2);
+      border-radius:50%;
+      right:-70px;
+      top:-88px;
+    }
+    .drive-kicker{
+      text-transform:uppercase;
+      letter-spacing:.18em;
+      font-weight:800;
+      font-size:.78rem;
+      opacity:.8;
+    }
+    .drive-main h2{
+      font-family:"Cormorant Garamond",serif;
+      font-size:2.15rem;
+      line-height:1;
+      margin:8px 0 10px;
+    }
+    .drive-main p{
+      margin:0 0 18px;
+      max-width:650px;
+      line-height:1.55;
+      opacity:.9;
+    }
+    .drive-link{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:11px 16px;
+      border-radius:999px;
+      background:#f4ead9;
+      color:#2e4027;
+      font-weight:800;
+      font-size:.9rem;
+    }
+
+    .drive-list{
+      background:#f3e5ce;
+      border-radius:22px;
+      padding:24px 26px;
+      border:1px solid rgba(122,75,28,.12);
+    }
+    .drive-list h3{
+      margin:0 0 11px;
+      text-transform:uppercase;
+      font-size:.93rem;
+      color:var(--brown);
+      letter-spacing:.05em;
+    }
+    .drive-list ul{
+      margin:0;
+      padding-left:19px;
+      color:#5d5144;
+      line-height:1.8;
+      font-size:.9rem;
+    }
+
+    .footer-note{
+      margin-top:2px;
+      padding:20px 0 2px;
+      color:#6a6057;
+      font-size:.84rem;
+      border-top:1px solid rgba(122,75,28,.16);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .footer-note strong{color:var(--green)}
+    .footer-meta{display:flex;gap:18px;flex-wrap:wrap}
+
+    @media (max-width:1180px){
+      .hero{
+        grid-template-columns:1fr;
+        grid-template-areas:
+          "portrait"
+          "intro"
+          "lower";
+      }
+      .portrait-side{min-height:560px}
+      .portrait{width:72%;left:14%}
+      .intro-side{padding:44px 34px}
+      .identity{padding-right:130px}
+      .formation-grid{grid-template-columns:repeat(2,1fr)}
+      .lower-content{padding:34px}
+      .scratch-grid{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media (max-width:760px){
+      .page{width:100%;padding:0}
+      .topbar{display:none}
+      .hero{border-radius:0;border-left:0;border-right:0}
+      .portrait-side{min-height:430px}
+      .portrait{width:92%;left:4%}
+      .intro-side{padding:34px 20px}
+      .identity{padding-right:0}
+      .name{font-size:3.5rem}
+      .formation-grid,
+      .tools-grid,
+      .drive,
+      .scratch-grid{grid-template-columns:1fr}
+      .lower-content{padding:30px 20px}
+      .section-title{font-size:.95rem}
+      .corner-pattern{display:none}
+      .tool-plan,
+      .tool-prompt{grid-template-columns:1fr}
+      .tool-plan-preview,
+      .tool-app-preview{min-height:180px;border-right:0;border-bottom:1px solid rgba(122,75,28,.12)}
+      .scratch-intro{align-items:flex-start;flex-direction:column}
+    }
+  
+    .scratch-embeds{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start}.embed-card{display:block;overflow:hidden}.embed-card iframe{display:block;width:100%;aspect-ratio:485/402;height:auto;border:0;background:#fff}.embed-card .game-copy{padding:16px}.embed-card:hover{transform:translateY(-2px)}@media(max-width:1050px){.scratch-embeds{grid-template-columns:1fr 1fr}}@media(max-width:700px){.scratch-embeds{grid-template-columns:1fr}}
+
+    /* GUIA BNCC DA COMPUTAÇÃO */
+    .bncc-guide-link{
+      margin-top:20px;
+      display:grid;
+      grid-template-columns:76px 1fr auto;
+      gap:20px;
+      align-items:center;
+      padding:22px 24px;
+      border-radius:20px;
+      background:linear-gradient(135deg,#32472b,#536846);
+      color:#fff;
+      border:1px solid rgba(52,73,43,.18);
+      box-shadow:0 12px 28px rgba(67,49,28,.10);
+      transition:.18s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .bncc-guide-link::after{
+      content:"";
+      position:absolute;
+      width:180px;height:180px;border-radius:50%;
+      border:1px solid rgba(255,255,255,.16);
+      right:-62px;top:-86px;
+    }
+    .bncc-guide-link:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(67,49,28,.14)}
+    .bncc-guide-icon{
+      width:70px;height:70px;border-radius:18px;
+      display:grid;place-items:center;
+      background:#f4ead9;color:var(--green);
+      position:relative;z-index:1;
+    }
+    .bncc-guide-icon img{width:46px;height:46px;object-fit:contain;display:block}
+    .bncc-guide-copy{position:relative;z-index:1}
+    .bncc-guide-kicker{
+      display:block;margin-bottom:4px;
+      text-transform:uppercase;letter-spacing:.15em;
+      font-size:.7rem;font-weight:800;opacity:.78
+    }
+    .bncc-guide-copy h3{
+      margin:0 0 6px;
+      font-family:"Cormorant Garamond",serif;
+      font-size:1.65rem;line-height:1;color:#fff;
+    }
+    .bncc-guide-copy p{margin:0;max-width:760px;font-size:.87rem;line-height:1.5;opacity:.9}
+    .bncc-guide-button{
+      position:relative;z-index:1;
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 14px;border-radius:999px;
+      background:#f4ead9;color:#2e4027;
+      font-weight:800;font-size:.82rem;white-space:nowrap;
+    }
+    @media(max-width:760px){
+      .bncc-guide-link{grid-template-columns:60px 1fr;padding:18px}
+      .bncc-guide-icon{width:56px;height:56px}
+      .bncc-guide-button{grid-column:1/-1;justify-self:start}
+    }
+
+
+    /* FERRAMENTAS — cards compactos com ícone de aplicativo */
+    .tool-plan, .tool-prompt{
+      display:grid;
+      grid-template-columns:84px 1fr;
+      align-items:center;
+      min-height:168px;
+      padding:22px 24px;
+      gap:20px;
+    }
+    .tool-plan-preview, .tool-app-preview{
+      width:72px; height:72px; min-height:72px;
+      border:0; border-radius:18px; overflow:hidden;
+      place-self:center;
+      box-shadow:0 8px 18px rgba(44,36,29,.10);
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .tool-plan-preview{background:#d7ddc8}
+    .tool-app-preview{background:#ead8bd}
+    .tool-plan-preview::before, .tool-app-preview::before{display:none}
+    .tool-plan-preview img, .tool-app-preview img{
+      width:100%; height:100%; object-fit:cover; border-radius:18px;
+    }
+    .tool-plan-copy, .tool-prompt-copy{padding:0; min-width:0}
+    .tool:hover .tool-plan-preview, .tool:hover .tool-app-preview{
+      transform:translateY(-3px);
+      box-shadow:0 12px 22px rgba(44,36,29,.14);
+    }
+    .tool-plan .arrow, .tool-prompt .arrow{right:4px; bottom:-5px}
+    @media(max-width:760px){
+      .tool-plan,.tool-prompt{grid-template-columns:68px 1fr;padding:18px;gap:16px}
+      .tool-plan-preview,.tool-app-preview{width:60px;height:60px;min-height:60px;border:0}
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="corner-pattern" aria-hidden="true"></div>
+
+    <div class="topbar">
+      <nav aria-label="Navegação principal">
+        <a href="#formacoes">Formações</a>
+        <a href="#ferramentas">Ferramentas</a>
+        <a href="#scratch">Jogos Scratch</a>
+        <a href="#drive">Materiais no Drive</a>
+      </nav>
+    </div>
+
+    <main class="hero">
+
+      <section class="portrait-side" aria-label="Apresentação da professora">
+        <div class="motif-weave" aria-hidden="true"></div>
+        <img class="portrait" src="foto-edileuza.png" alt="Profa. Ma. Edileuza" />
+      </section>
+
+      <section class="intro-side">
+
+        <header class="identity">
+          <h1 class="name">Profa. Ma. Edileuza</h1>
+          <p class="role">Professora de História</p>
+          <p class="intro">
+            Bem-vindo(a)! Um espaço para acessar formações, materiais, recursos e ferramentas
+            pensadas para apoiar professores no ensino de História.
+          </p>
+        </header>
+
+        <section id="formacoes">
+          <h2 class="section-title"><span>✦</span> Formações de História</h2>
+
+          <div class="formation-grid">
+
+            <a class="card" href="formacao-1.html">
+              <div class="num">I</div>
+              <svg class="card-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="12" y="13" width="40" height="36" rx="5"/>
+                <path d="M20 22h24M20 30h15M20 38h20"/>
+                <path d="M26 49v5M38 49v5M21 54h22"/>
+              </svg>
+              <h3>I Formação</h3>
+              <p>Materiais, atividades e recursos desenvolvidos durante a formação.</p>
+              <span class="theme-tag">Aprendizagens conectadas: tecnologias e 
+equidade para uma sociedade sustentável.</span>
+            </a>
+
+            <a class="card" href="formacao-2.html">
+              <div class="num">II</div>
+              <svg class="card-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 15h40v31H12z"/>
+                <path d="M20 23h24M20 31h16"/>
+                <circle cx="42" cy="38" r="5"/>
+                <path d="M27 46v7M37 46v7M23 53h18"/>
+              </svg>
+              <h3>II Formação</h3>
+              <p>Materiais, atividades e recursos desenvolvidos durante a formação.</p>
+              <span class="theme-tag">Tecnologias Digitais, Inteligência Artificial e 
+sustentabilidade ambientale social no 
+cotidiano da escola</span>
+            </a>
+
+            <a class="card" href="formacao-3.html">
+              <div class="num">III</div>
+              <svg class="card-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="22" cy="22" r="7"/>
+                <circle cx="42" cy="22" r="7"/>
+                <path d="M10 48c2-9 7-14 12-14s10 5 12 14"/>
+                <path d="M30 48c2-9 7-14 12-14s10 5 12 14"/>
+              </svg>
+              <h3>III Formação</h3>
+              <p>Materiais, atividades e recursos desenvolvidos durante a formação.</p>
+              <span class="theme-tag">Metodologias educacionais ativas para o engajamento das 
+novas gerações</span>
+            </a>
+
+            <a class="card" href="formacao-4.html">
+              <div class="num">IV</div>
+              <svg class="card-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 19l19-9 19 9-19 9z"/>
+                <path d="M20 26v11c0 5 5 9 12 9s12-4 12-9V26"/>
+                <path d="M51 19v17"/>
+              </svg>
+              <h3>IV Formação</h3>
+              <p>Materiais, atividades e recursos desenvolvidos durante a formação.</p>
+              <span class="theme-tag">Gestão de sala de aula e avaliação do ensino e da aprendizagem com foco nas relações sociais...
+</span>
+            </a>
+
+          </div>
+        </section>
+      </section>
+
+      <section class="lower-content">
+
+        <section id="ferramentas">
+          <h2 class="section-title"><span>⚙</span> Ferramentas para professores</h2>
+
+          <div class="tools-grid">
+            <a class="tool tool-plan" href="criador-plano-de-aula.html">
+              <div class="tool-plan-preview">
+                <img src="imagem-criador-plano.png" alt="Prévia do Criador de Plano de Aula">
+              </div>
+
+              <div class="tool-plan-copy">
+                <h3>Criador de Plano de Aula</h3>
+                <p>Crie planos de aula completos de forma prática e personalizada.</p>
+                <span class="arrow">›</span>
+              </div>
+            </a>
+
+            <a class="tool tool-prompt" href="criador-de-prompt.html">
+              <div class="tool-app-preview">
+                         <img src="imagem-criador-prompt.png" alt="Prévia do Criador de Prompt">
+               
+              </div>
+
+              <div class="tool-prompt-copy">
+                <h3>Criador de Prompt</h3>
+                <p>Gere prompts claros e eficientes para aulas, projetos e atividades.</p>
+                <span class="arrow">›</span>
+              </div>
+            </a>
+          </div>
+        </section>
+
+                <section id="scratch">
+          <h2 class="section-title"><span>▶</span> Jogos educativos no Scratch</h2>
+
+          <div class="scratch-shell">
+            <div class="scratch-intro">
+              <div>
+                <h3>Aprender História jogando</h3>
+                <p>
+                  Exemplos de como as habilidades da BNCC da Computação podem ser integradas ao ensino de História de forma prática.
+                </p>
+              </div>
+              <div class="scratch-badge">RECURSOS INTERATIVOS</div>
+            </div>
+
+<div class="scratch-grid scratch-embeds">
+
+  <!-- JOGO 01 -->
+  <article class="game-card embed-card">
+    <iframe
+      src="https://scratch.mit.edu/projects/1327914474/embed"
+      allowtransparency="true"
+      frameborder="0"
+      scrolling="no"
+      allowfullscreen
+      title="Jogo Scratch - Os Parkatêjê">
+    </iframe>
+
+    <div class="game-copy">
+      <span class="game-number">JOGO 01</span>
+      <h4>Os Parkatêjê</h4>
+
+      <div class="game-skills">
+        <p>
+          <strong>História</strong>
+          <span>EF06HI03MB</span>
+          Povos indígenas e comunidades tradicionais do sudeste do Pará.
+        </p>
+
+        <p>
+          <strong>Computação</strong>
+          <span>EF06CO02</span>
+          Algoritmos com sequência, repetição e seleção.
+        </p>
+      </div>
+    </div>
+  </article>
+
+
+  <!-- JOGO 02 -->
+  <article class="game-card embed-card">
+    <iframe
+      src="https://scratch.mit.edu/projects/1318424424/embed"
+      allowtransparency="true"
+      frameborder="0"
+      scrolling="no"
+      allowfullscreen
+      title="Jogo Scratch - Povos Indígenas e Vazanteiros">
+    </iframe>
+
+    <div class="game-copy">
+      <span class="game-number">JOGO 02</span>
+      <h4>Povos Indígenas e Vazanteiros</h4>
+
+      <div class="game-skills">
+        <p>
+          <strong>História</strong>
+          <span>EF06HI03MB</span>
+          Povos indígenas e comunidades vazanteiras do sudeste do Pará.
+        </p>
+
+        <p>
+          <strong>Computação</strong>
+          <span>EF06CO02</span>
+          Algoritmos com sequência, repetição e seleção.
+        </p>
+      </div>
+    </div>
+  </article>
+
+
+  <!-- JOGO 03 -->
+  <article class="game-card embed-card">
+    <iframe
+      src="https://scratch.mit.edu/projects/1338296576/embed"
+      allowtransparency="true"
+      frameborder="0"
+      scrolling="no"
+      allowfullscreen
+      title="Jogo Scratch - Quiz da Linha do Tempo">
+    </iframe>
+
+    <div class="game-copy">
+      <span class="game-number">JOGO 03</span>
+      <h4>Quiz da Linha do Tempo</h4>
+
+      <div class="game-skills">
+        <p>
+          <strong>História</strong>
+          <span>EF08HI03</span>
+          Impactos da Revolução Industrial.
+        </p>
+
+        <p>
+          <strong>Computação</strong>
+          <span>EF08CO02</span>
+          Soluções utilizando listas em programação.
+        </p>
+      </div>
+    </div>
+  </article>
+
+</div>
+
+            <a class="bncc-guide-link" href="guia-bncc-computacao-historia.html" aria-label="Abrir Guia BNCC da Computação aplicada à História">
+              <div class="bncc-guide-icon" aria-hidden="true">
+                <img src="bncc-simbolo.png" alt="Símbolo da BNCC da Computação">
+              </div>
+              <div class="bncc-guide-copy">
+                <span class="bncc-guide-kicker">História + Computação</span>
+                <h3>Guia da BNCC da Computação</h3>
+                <p>Entenda os termos, aprenda a associar habilidades de Computação às habilidades de História e veja exemplos explicados passo a passo.</p>
+              </div>
+              <span class="bncc-guide-button">Abrir guia <span aria-hidden="true">→</span></span>
+            </a>
+
+          </div>
+        </section>
+
+        <section id="drive">
+          <div class="drive">
+            <div class="drive-main">
+              <div class="drive-kicker">Biblioteca da professora</div>
+              <h2>Materiais no Drive</h2>
+              <p>
+                Encontre atividades adaptadas e não adaptadas do 6º ao 9º ano, elaboradas e organizadas pela professora para apoiar a prática em sala de aula.
+              </p>
+              <a class="drive-link" href="https://drive.google.com/drive/folders/1m0NwqYtMVJ9RQiu1RsB2L0E-lFmGz2fj?usp=drive" target="_blank" rel="noopener noreferrer">
+                Acessar materiais
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <aside class="drive-list">
+              <h3>O que você encontrará</h3>
+              <ul>
+                <li>Atividades adaptadas</li>
+                <li>Materiais didáticos</li>
+                <li>Atividades lúdicas</li>
+                <li>Modelos editáveis</li>
+                <li>Modelo de plano de aula</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <footer class="footer-note">
+          <div><strong>Profa. Ma. Edileuza</strong> · História, formação e tecnologia educacional.</div>
+          <div class="footer-meta">
+            <span>Educação com propósito</span>
+            <span>Valorização da diversidade</span>
+            <span>Saberes que transformam</span>
+          </div>
+        </footer>
+
+      </section>
+    </main>
+  </div>
+</body>
+</html>
